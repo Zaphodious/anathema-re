@@ -1,0 +1,15 @@
+{
+  "short_name": "Anathema",
+  "name": "Anathema Reincarnated",
+  "display": "standalone",
+  "theme_color": "#ff8a00",
+  "background_color" : "#8ebfff",
+  "icons": [
+    {
+      "src": "/img/gilted-logo-app-icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/"
+}
