@@ -59,7 +59,7 @@
     :edn "text/edn"
     :json "text/json"
     :transit "text/json"
-    :msgpack "text/msgpack"))
+    :msgpack "application/msgpack"))
 
 #?(:clj (def ^:private hash-ops {:salt "Exalted Is Best Game!"}))
 (defn new-id []
