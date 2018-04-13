@@ -1,10 +1,6 @@
 {:duct.core/project-ns          anathema-re
  :duct.core/environment         :production
 
- :duct.server.http/jetty {:port 3000
-                             :handler #ig/ref :duct.core/handler
-                             :logger #ig/ref :duct/logger}
-
  :duct.module/logging           {}
  :duct.module.web/site          {}
  :duct.module/cljs              {:main anathema-re.client}
