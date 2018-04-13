@@ -5,6 +5,10 @@
             [anathema-re.boundary.environ]
             [anathema-re.boundary.mongo]))
 
+(System/setProperty
+  "duct.target.path"
+  (.getAbsolutePath (io/file "anathema-re")))
+
 (duct/load-hierarchy)
 
 (defn -main [& args]

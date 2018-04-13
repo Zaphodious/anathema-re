@@ -10,6 +10,7 @@
                  [duct/module.logging "0.3.1"]
                  [duct/module.web "0.6.4"]
                  [duct/module.cljs "0.3.2"]
+                 [duct/server.http.http-kit "0.1.2"]
                  [rum "0.11.2"]
                  [environ "1.1.0"]
                  [garden "1.3.5"]
@@ -18,7 +19,8 @@
                  [com.novemberain/monger "3.1.0"]
                  [com.cemerick/url "0.1.1"]
                  [jstrutz/hashids "1.0.1"]
-                 [com.fasterxml.jackson.core/jackson-core "2.9.5"]]
+                 [com.fasterxml.jackson.core/jackson-core "2.9.5"]
+                 [bk/ring-gzip "0.3.0"]]
   :plugins [[duct/lein-duct "0.10.6"]
             [lein-environ "1.1.0"]]
   :main ^:skip-aot anathema-re.main

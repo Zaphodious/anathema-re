@@ -1,2 +1,3 @@
 {:duct.core/environment :development
- :duct.core/include ["anathema_re/config"]}
+ :duct.core/include ["anathema_re/config"]
+ :anathema-re.handler/js {:js #ig/ref :duct.server/figwheel}}

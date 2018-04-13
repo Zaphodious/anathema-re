@@ -1,6 +1,9 @@
 {:duct.core/project-ns          anathema-re
  :duct.core/environment         :production
 
+ ;:duct.server.http/http-kit {:port 3000
+      ;                       :handler #ig/ref :duct.router/cascading
+
  :duct.module/logging           {}
  :duct.module.web/site          {}
  :duct.module/cljs              {:main anathema-re.client}
@@ -19,6 +22,7 @@
  :anathema-re.handler/example   {}
  :anathema-re.handler/site      {:get-thing #ig/ref :anathema-re.boundary/get
                                  :put-thing! #ig/ref :anathema-re.boundary/put}
+ ;:anathema-re.handler/js {:js #ig/ref :duct.compiler/cljs}
  :anathema-re.handler/api {:get-thing #ig/ref :anathema-re.boundary/get
                            :put-thing! #ig/ref :anathema-re.boundary/put}
  :anathema-re.handler/resources {}}
