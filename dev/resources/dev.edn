@@ -1,3 +1,4 @@
 {:duct.core/environment :development
  :duct.core/include ["anathema_re/config"]
- :anathema-re.handler/js {:js #ig/ref :duct.server/figwheel}}
+ :anathema-re.handler/js {:js #ig/ref :duct.server/figwheel}
+ :duct.server.http/http-kit {:port 3000}}

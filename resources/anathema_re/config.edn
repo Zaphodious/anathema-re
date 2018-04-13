@@ -1,10 +1,14 @@
 {:duct.core/project-ns          anathema-re
  :duct.core/environment         :production
 
+ :duct.server.http/http-kit {:handler #ig/ref :anathema-re.middleware/gzip
+                             :logger #ig/ref :duct/logger}
+
  :duct.module/logging           {}
  :duct.module.web/site          {}
  :duct.module/cljs              {:main anathema-re.client}
 
+ :anathema-re.middleware/gzip {:handler #ig/ref :duct.core/handler}
 
  :duct.router/cascading
                                 [#ig/ref :anathema-re.handler/js
@@ -14,6 +18,7 @@
                                  #ig/ref :anathema-re.handler/api]
 
  :anathema-re.boundary/environ  {}
+
  :anathema-re.boundary.mongo/connection    {:environ #ig/ref :anathema-re.boundary/environ}
  :anathema-re.boundary/get      {:mongo #ig/ref :anathema-re.boundary.mongo/connection}
  :anathema-re.boundary/put      {:mongo #ig/ref :anathema-re.boundary.mongo/connection}
