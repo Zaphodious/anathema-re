@@ -3,6 +3,9 @@
   :url "http://example.com/FIXME"
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/clojurescript "1.10.238"]
+                 [com.cognitect/transit-clj "0.8.303"]
+                 [com.cognitect/transit-cljs "0.8.256"]
                  [duct/core "0.6.2"]
                  [duct/module.logging "0.3.1"]
                  [duct/module.web "0.6.4"]
@@ -12,8 +15,10 @@
                  [garden "1.3.5"]
                  [com.rpl/specter "1.1.0"]
                  [gzip-util "0.1.0-SNAPSHOT"]
-                 [congomongo "0.5.0"]
-                 [com.cemerick/url "0.1.1"]]
+                 [com.novemberain/monger "3.1.0"]
+                 [com.cemerick/url "0.1.1"]
+                 [jstrutz/hashids "1.0.1"]
+                 [com.fasterxml.jackson.core/jackson-core "2.9.5"]]
   :plugins [[duct/lein-duct "0.10.6"]
             [lein-environ "1.1.0"]]
   :main ^:skip-aot anathema-re.main

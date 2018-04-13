@@ -8,13 +8,17 @@
  :duct.router/cascading
                                 [#ig/ref :anathema-re.handler/example
                                  #ig/ref :anathema-re.handler/site
-                                 #ig/ref :anathema-re.handler/resources]
+                                 #ig/ref :anathema-re.handler/resources
+                                 #ig/ref :anathema-re.handler/api]
 
  :anathema-re.boundary/environ  {}
- :anathema-re.boundary/mongo    {:environ #ig/ref :anathema-re.boundary/environ}
- :anathema-re.boundary/get      {:mongo #ig/ref :anathema-re.boundary/mongo}
- :anathema-re.boundary/put      {:mongo #ig/ref :anathema-re.boundary/mongo}
+ :anathema-re.boundary.mongo/connection    {:environ #ig/ref :anathema-re.boundary/environ}
+ :anathema-re.boundary/get      {:mongo #ig/ref :anathema-re.boundary.mongo/connection}
+ :anathema-re.boundary/put      {:mongo #ig/ref :anathema-re.boundary.mongo/connection}
 
  :anathema-re.handler/example   {}
- :anathema-re.handler/site      {}
+ :anathema-re.handler/site      {:get-thing #ig/ref :anathema-re.boundary/get
+                                 :put-thing! #ig/ref :anathema-re.boundary/put}
+ :anathema-re.handler/api {:get-thing #ig/ref :anathema-re.boundary/get
+                           :put-thing! #ig/ref :anathema-re.boundary/put}
  :anathema-re.handler/resources {}}
