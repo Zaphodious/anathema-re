@@ -15,24 +15,23 @@
 
 
 (defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js] :as options}]
-  (gz/wrap-gzip
-    (routes
-      (GET "/style/main.css" []
-        {:status  200
-         :headers {"Content-Type" "text/css"}
-         :body
-                  (#'style/compile-style)})
-      (GET "/" []
-        {:status 200
-         :headers {"Content-Type" "text/html"}
-         :body
-         (make-html5 (rum/render-static-markup (#'ui/homepage "/")))}))))
+  (routes
+    (GET "/style/main.css" []
+      {:status  200
+       :headers {"Content-Type" "text/css"}
+       :body
+                (#'style/compile-style)})
+    (GET "/" []
+      {:status  200
+       :headers {"Content-Type" "text/html"}
+       :body
+                (make-html5 (rum/render-static-markup (#'ui/homepage "/")))})))
 
 (defmethod ig/init-key :anathema-re.handler/resources [_ options]
-  (gz/wrap-gzip (comp-route/resources "/")))
+  (comp-route/resources "/"))
 
 (defmethod ig/init-key :anathema-re.handler/js [_ {:keys [js] :as options}]
-  (gz/wrap-gzip (comp-route/resources "/js/")))
+  (comp-route/resources "/js/"))
 
 (defmethod ig/init-key :duct.handler/static [_ _]
   (constantly nil))
