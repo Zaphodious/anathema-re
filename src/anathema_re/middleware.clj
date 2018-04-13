@@ -8,8 +8,9 @@
     (println "gzipping " a)
     (rg/wrap-gzip a)))
 
-(defmethod ig/init-key :duct.middleware.web/defaults [_ defaults]
-  (fn [a]
-    (-> a
-        rg/wrap-gzip
-        (defaults/wrap-defaults defaults))))
+;(defmethod ig/init-key :duct.middleware.web/defaults [_ defaults]
+;  (fn [a]
+;    (-> a
+;        rg/wrap-gzip
+;        (defaults/wrap-defaults defaults))))
+

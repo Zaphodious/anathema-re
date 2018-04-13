@@ -26,7 +26,9 @@
   (GET "/api/*" {:keys [uri headers query-string]
                   :as request}
     (let [path (get-path-from-uri uri)
-          dest-format (keyword (second (str/split query-string #"=")))]
+          dest-format (if (or (= "" query-string) (nil? query-string))
+                        :transit
+                        (keyword (second (str/split query-string #"="))))]
       {:status  200
        :headers {"Content-Type" (data/content-type-for dest-format)}
        :body    (data/write-data-as (get-thing path) dest-format)})))
