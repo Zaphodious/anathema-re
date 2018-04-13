@@ -8,6 +8,10 @@
  :duct.module.web/site          {}
  :duct.module/cljs              {:main anathema-re.client}
 
+ :duct.core/handler {:middleware [#ig/ref :anathema-re.middleware/gzip]}
+
+ :anathema-re.middleware/gzip {}
+
  :duct.router/cascading
                                 [#ig/ref :anathema-re.handler/js
                                  #ig/ref :anathema-re.handler/example
