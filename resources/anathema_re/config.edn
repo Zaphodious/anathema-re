@@ -2,7 +2,7 @@
  :duct.core/environment         :production
 
  :duct.server.http/jetty {:port 3000
-                             :handler #ig/ref :anathema-re.middleware/gzip
+                             :handler #ig/ref :duct.core/handler
                              :logger #ig/ref :duct/logger}
 
  :duct.module/logging           {}
