@@ -27,8 +27,8 @@
                  :as
                  {:keys [uri headers query-string]
                   :as request}]
-    (let [path (get-path-from-uri uri)]
+    (let [path (get-path-from-uri uri)
+          dest-format (if format (keyword format) :transit)]
       {:status  200
-       :headers {"Content-Type" "text/json"}
-       :body
-                (data/write-data-as (get-thing path) (if format (keyword format) :transit))})))
+       :headers {"Content-Type" (data/content-type-for dest-format)}
+       :body (data/write-data-as (get-thing path) dest-format)})))

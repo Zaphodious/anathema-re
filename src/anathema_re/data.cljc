@@ -50,7 +50,7 @@
     :transit (to-transit thing false)))
 
 (defn content-type-for [format]
-  (case (keyword format)
+  (case (keyword (name format))
     :edn "text/edn"
     :json "text/json"
     :transit "text/json"))
