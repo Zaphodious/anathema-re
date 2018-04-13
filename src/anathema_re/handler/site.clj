@@ -33,3 +33,8 @@
 
 (defmethod ig/init-key :anathema-re.handler/js [_ {:keys [js] :as options}]
   (gz/wrap-gzip (comp-route/resources "/js/")))
+
+(defmethod ig/init-key :duct.handler/static [_ _]
+  (constantly nil))
+(defmethod ig/init-key :duct.handler.static.ok [_ _]
+  (constantly nil))

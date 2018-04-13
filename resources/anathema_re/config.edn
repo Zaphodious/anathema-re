@@ -1,16 +1,15 @@
 {:duct.core/project-ns          anathema-re
  :duct.core/environment         :production
 
- ;:duct.server.http/http-kit {:port 3000
-      ;                       :handler #ig/ref :duct.router/cascading
+ :duct.server.http/http-kit {:port 3000
+                             :handler #ig/ref :anathema-re.middleware/gzip
+                             :logger #ig/ref :duct/logger}
 
  :duct.module/logging           {}
  :duct.module.web/site          {}
  :duct.module/cljs              {:main anathema-re.client}
 
- :duct.core/handler {:middleware [#ig/ref :anathema-re.middleware/gzip]}
-
- :anathema-re.middleware/gzip {}
+ :anathema-re.middleware/gzip {:handler #ig/ref :duct.core/handler}
 
  :duct.router/cascading
                                 [#ig/ref :anathema-re.handler/js
