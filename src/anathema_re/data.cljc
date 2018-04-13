@@ -33,27 +33,33 @@
                 (fn [a] new-thing)
                 game-entity))
 
-(defn to-transit [thing verbose?]
+(defn to-transit [thing json? verbose?]
   #?(:clj
      (let [out (ByteArrayOutputStream. 4096)
-           writer (transit/writer out (if verbose? :json-verbose :json))]
+           writer (transit/writer out (if json?
+                                        (if verbose? :json-verbose :json)
+                                        :msgpack))]
        (transit/write writer thing)
        (.toString out))
      :cljs
-     (transit/write (transit/writer (if verbose? :json-verbose :json))
+     (transit/write (transit/writer (if json?
+                                      (if verbose? :json-verbose :json)
+                                      :msgpack))
                     thing)))
 
 (defn write-data-as [thing format]
   (case format
     :edn (pr-str thing)
-    :json (to-transit thing true)
-    :transit (to-transit thing false)))
+    :json (to-transit thing true true)
+    :transit (to-transit thing true false)
+    :msgpack (to-transit thing false false)))
 
 (defn content-type-for [format]
   (case (keyword (name format))
     :edn "text/edn"
     :json "text/json"
-    :transit "text/json"))
+    :transit "text/json"
+    :msgpack "text/msgpack"))
 
 #?(:clj (def ^:private hash-ops {:salt "Exalted Is Best Game!"}))
 (defn new-id []
