@@ -1,0 +1,11 @@
+[{:key "5434543", :name "Alex", :email "alex@awesome.internetplace",
+  :character ["963963963" "424242" "789789789" "7777777777"],
+  :rulebook ["242424"]
+  :category :player}
+ {:key "010101", :name "Gavyn",
+  :character ["424242"]
+  :rulebook ["452452452"]
+  :email "dudu@dae_eat.dawhatsit", :category :player}
+ {:key "0983234", :name "Steve", :email "whatever@nonsense.r-u-kidding",
+  :rulebook ["852852852" "01010101"]
+  :character ["7777777777" "963963963"] :category :player}]
