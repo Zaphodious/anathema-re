@@ -7,7 +7,7 @@
 
 (System/setProperty
   "duct.target.path"
-  (.getAbsolutePath (io/file "anathema-re")))
+  (.getAbsolutePath (io/file "")))
 
 (duct/load-hierarchy)
 

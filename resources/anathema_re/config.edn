@@ -9,7 +9,8 @@
  :duct.module/cljs              {:main anathema-re.client}
 
  :duct.router/cascading
-                                [#ig/ref :anathema-re.handler/example
+                                [#ig/ref :anathema-re.handler/js
+                                 #ig/ref :anathema-re.handler/example
                                  #ig/ref :anathema-re.handler/site
                                  #ig/ref :anathema-re.handler/resources
                                  #ig/ref :anathema-re.handler/api]
@@ -22,7 +23,7 @@
  :anathema-re.handler/example   {}
  :anathema-re.handler/site      {:get-thing #ig/ref :anathema-re.boundary/get
                                  :put-thing! #ig/ref :anathema-re.boundary/put}
- ;:anathema-re.handler/js {:js #ig/ref :duct.compiler/cljs}
+ :anathema-re.handler/js {}
  :anathema-re.handler/api {:get-thing #ig/ref :anathema-re.boundary/get
                            :put-thing! #ig/ref :anathema-re.boundary/put}
  :anathema-re.handler/resources {}}

@@ -32,4 +32,4 @@
   (gz/wrap-gzip (comp-route/resources "/")))
 
 (defmethod ig/init-key :anathema-re.handler/js [_ {:keys [js] :as options}]
-  (println "thing"))
+  (gz/wrap-gzip (comp-route/resources "/js/")))
