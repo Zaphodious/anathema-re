@@ -173,7 +173,7 @@
 (defmethod ig/init-key ::connection [_ {:keys [environ] :as opts}]
   (let [db-uri (:mongodb-uri environ)
         connec (mg/connect-via-uri db-uri)]
-    (restore-dev-db! (:db connec))
+    ;(restore-dev-db! (:db connec))
     connec))
 
 (defmethod ig/init-key :anathema-re.boundary/get [_ {:keys [mongo]}]
