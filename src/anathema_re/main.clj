@@ -1,7 +1,9 @@
 (ns anathema-re.main
   (:gen-class)
   (:require [clojure.java.io :as io]
-            [duct.core :as duct]))
+            [duct.core :as duct]
+            [anathema-re.boundary.environ]
+            [anathema-re.boundary.mongo]))
 
 (duct/load-hierarchy)
 

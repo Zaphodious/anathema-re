@@ -8,8 +8,14 @@
                  [duct/module.web "0.6.4"]
                  [duct/module.cljs "0.3.2"]
                  [rum "0.11.2"]
-                 [garden "1.3.5"]]
-  :plugins [[duct/lein-duct "0.10.6"]]
+                 [environ "1.1.0"]
+                 [garden "1.3.5"]
+                 [com.rpl/specter "1.1.0"]
+                 [gzip-util "0.1.0-SNAPSHOT"]
+                 [congomongo "0.5.0"]
+                 [com.cemerick/url "0.1.1"]]
+  :plugins [[duct/lein-duct "0.10.6"]
+            [lein-environ "1.1.0"]]
   :main ^:skip-aot anathema-re.main
   :uberjar-name  "anathema-re-standalone.jar"
   :resource-paths ["resources" "target/resources"]
@@ -23,6 +29,8 @@
    :profiles/dev {}
    :project/dev  {:source-paths   ["dev/src"]
                   :resource-paths ["dev/resources"]
+                  :env {:mongodb-uri "mongodb%3A%2F%2Flocalhost%3A27017%2Fanathema"
+                        :masterkey "devkey42"}
                   :dependencies   [[integrant/repl "0.2.0"]
                                    [eftest "0.4.1"]
                                    [kerodon "0.9.0"]]}})

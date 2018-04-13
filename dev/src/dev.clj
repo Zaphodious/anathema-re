@@ -1,6 +1,8 @@
 (ns dev
   (:refer-clojure :exclude [test])
   (:require [clojure.repl :refer :all]
+            [anathema-re.boundary.environ]
+            [anathema-re.boundary.mongo]
             [fipp.edn :refer [pprint]]
             [clojure.tools.namespace.repl :refer [refresh]]
             [clojure.java.io :as io]
