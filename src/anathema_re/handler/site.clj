@@ -28,8 +28,8 @@
          :body
          (make-html5 (rum/render-static-markup (#'ui/homepage "/")))}))))
 
-(defmethod ig/init-key :anathema-re.handler/resources [_ options])
-  ;(gz/wrap-gzip (comp-route/resources "/")))
+(defmethod ig/init-key :anathema-re.handler/resources [_ options]
+  (gz/wrap-gzip (comp-route/resources "/")))
 
-(defmethod ig/init-key :anathema-re.handler/js [_ {:keys [js] :as options}])
-  ;(gz/wrap-gzip (comp-route/resources "/js/")))
+(defmethod ig/init-key :anathema-re.handler/js [_ {:keys [js] :as options}]
+  (gz/wrap-gzip (comp-route/resources "/js/")))
