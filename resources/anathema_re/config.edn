@@ -1,7 +1,7 @@
 {:duct.core/project-ns          anathema-re
  :duct.core/environment         :production
 
- :duct.server.http/http-kit {:port 3000
+ :duct.server.http/jetty {:port 3000
                              :handler #ig/ref :anathema-re.middleware/gzip
                              :logger #ig/ref :duct/logger}
 
