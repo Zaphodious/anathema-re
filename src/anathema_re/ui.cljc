@@ -42,9 +42,9 @@
    [:head
     [:meta {:name :viewport :content "width=device-width, initial-scale=1"}]
     [:link {:rel "preload" :href "/style/main.css" :as "style"}]
-    [:link {:rel "preload" :href "/js/main.js" :as "application/javascript"}]
-    [:link {:rel "preload" :href (data/get-uri-from-path path)
-            :as  "fetch"}]
+    [:link {:rel "preload" :href "/js/main.js" :as "script"}]
+    [:link {:rel "preload" :href (data/get-api-uri-from-path path)
+            :as  "fetch" :type "text/json"}]
     [:link {:rel "manifest" :href "/manifest.json"}]
     [:link {:rel "stylesheet" :href "/style/main.css" :type "text/css"}]
     [:link {:rel "stylesheet" :href "/style/font.css" :type "text/css"}]

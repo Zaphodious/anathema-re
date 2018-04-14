@@ -59,9 +59,9 @@
 (defn content-type-for [format]
   (case (keyword (name format))
     :edn "text/edn"
-    :json "text/json"
-    :transit "text/json"
-    :msgpack "application/msgpack"))
+    (:json :transit) "text/json"
+    :msgpack "application/msgpack"
+     "text/json"))
 
 #?(:clj (def ^:private hash-ops {:salt "Exalted Is Best Game!"}))
 (defn new-id []
@@ -79,6 +79,8 @@
 (defn split-uri [uri]
   (-> uri
       (str/replace "/api/" "")
+      (str/split #"\.")
+      first
       (str/split #"/")))
 (defn get-path-from-uri [uri]
   (-> uri
@@ -86,11 +88,14 @@
       (read-path)
       vec))
 
-(defn get-uri-from-path [path]
-  (->> path
-       (map (fn [a] (if (number? a)
-                      (str a)
-                      (name a))))
-       (map (fn [a] (str "/" a)))
-       (reduce str)
-       (str "/api")))
+(defn get-api-uri-from-path
+  ([path] (get-api-uri-from-path path :transit))
+  ([path format] (str
+                   (->> path
+                     (map (fn [a] (if (number? a)
+                                    (str a)
+                                    (name a))))
+                     (map (fn [a] (str "/" a)))
+                     (reduce str)
+                     (str "/api"))
+                   (str "." (name format)))))

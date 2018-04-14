@@ -20,6 +20,7 @@
                  [com.cemerick/url "0.1.1"]
                  [jstrutz/hashids "1.0.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.9.5"]
+                 [cljs-ajax "0.7.3"]
                  [bk/ring-gzip "0.3.0"]]
   :plugins [[duct/lein-duct "0.10.6"]
             [lein-environ "1.1.0"]]
