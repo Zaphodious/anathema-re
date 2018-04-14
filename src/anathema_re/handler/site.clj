@@ -43,6 +43,13 @@
        :headers {"Content-Type" "text/html"}
        :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
                                                                       :get-thing get-thing
+                                                                      :put-thing! put-thing!})))})
+    (GET "/rulebook/*" {:keys [uri headers query-string]
+                         :as request}
+      {:status  200
+       :headers {"Content-Type" "text/html"}
+       :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
+                                                                      :get-thing get-thing
                                                                       :put-thing! put-thing!})))})))
 
 (defmethod ig/init-key :anathema-re.handler/resources [_ options]

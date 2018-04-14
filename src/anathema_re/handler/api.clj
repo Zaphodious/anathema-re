@@ -16,5 +16,5 @@
                         (keyword (second (str/split query-string #"="))))]
       {:status  200
        :headers {"Content-Type" (data/content-type-for dest-format)}
-       :body    (data/write-data-as (async/<!!  (get-thing path))
+       :body    (data/write-data-as (get-thing path)
                                     dest-format)})))

@@ -177,6 +177,6 @@
     connec))
 
 (defmethod ig/init-key :anathema-re.boundary/get [_ {:keys [mongo]}]
-  #(async/go (#'get-from-path mongo %)))
+  #(#'get-from-path mongo %))
 (defmethod ig/init-key :anathema-re.boundary/put [_ {:keys [mongo]}]
-  #(async/go (#'put-in-path! mongo %1 %2)))
+  #(#'put-in-path! mongo %1 %2))
