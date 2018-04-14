@@ -44,7 +44,7 @@
     [:link {:rel "preload" :href "/style/main.css" :as "style"}]
     [:link {:rel "preload" :href "/js/main.js" :as "application/javascript"}]
     [:link {:rel "preload" :href (data/get-uri-from-path path)
-            :as  "json"}]
+            :as  "fetch"}]
     [:link {:rel "manifest" :href "/manifest.json"}]
     [:link {:rel "stylesheet" :href "/style/main.css" :type "text/css"}]
     [:link {:rel "stylesheet" :href "/style/font.css" :type "text/css"}]
