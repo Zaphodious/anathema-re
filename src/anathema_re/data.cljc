@@ -3,6 +3,8 @@
             [com.rpl.specter :as sp]
             [clojure.spec.gen.alpha :as sg]
             [cognitect.transit :as transit]
+            [clojure.string :as str]
+            [clojure.tools.reader :as reader]
     #?(:clj [hashids.core :as h]))
   #?(:clj (:import (java.io ByteArrayOutputStream))))
 
@@ -66,3 +68,29 @@
   #?(:clj
            (h/encode hash-ops (rand-int 99999) (rand-int 99999) (rand-int 99999))
      :cljs (str "temp_" (.toLocaleDateString (js/Date.)) (rand-int 999999) (rand-int 999999))))
+
+(defn read-path [path-vec]
+  (->> path-vec
+       (filter #(not (empty? %)))
+       (map reader/read-string)
+       (map (fn [a] (if (symbol? a)
+                      (keyword (name a))
+                      a)))))
+(defn split-uri [uri]
+  (-> uri
+      (str/replace "/api/" "")
+      (str/split #"/")))
+(defn get-path-from-uri [uri]
+  (-> uri
+      (split-uri)
+      (read-path)
+      vec))
+
+(defn get-uri-from-path [path]
+  (->> path
+       (map (fn [a] (if (number? a)
+                      (str a)
+                      (name a))))
+       (map (fn [a] (str "/" a)))
+       (reduce str)
+       (str "/api")))

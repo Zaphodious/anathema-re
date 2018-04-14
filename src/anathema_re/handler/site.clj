@@ -7,14 +7,16 @@
             [anathema-re.ui :as ui]
             [anathema-re.style :as style]
             [rum.core :as rum]
-            [ring.middleware.gzip :as gz]))
+            [ring.middleware.gzip :as gz]
+            [anathema-re.data :as data]
+            [clojure.string :as str]))
 
 (defn make-html5 [render-str]
   (str "<!DOCTYPE html>\n" render-str))
 
 
 
-(defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js] :as options}]
+(defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js get-thing put-thing!] :as options}]
   (routes
     (GET "/style/main.css" []
       {:status  200
@@ -25,7 +27,23 @@
       {:status  200
        :headers {"Content-Type" "text/html"}
        :body
-                (make-html5 (rum/render-static-markup (#'ui/homepage "/")))})))
+                (make-html5 (rum/render-static-markup (#'ui/homepage {:path [:home]
+                                                                      :get-thing get-thing
+                                                                      :put-thing! put-thing!})))})
+    (GET "/character/*" {:keys [uri headers query-string]
+                         :as request}
+      {:status  200
+       :headers {"Content-Type" "text/html"}
+       :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
+                                                                      :get-thing get-thing
+                                                                      :put-thing! put-thing!})))})
+    (GET "/player/*" {:keys [uri headers query-string]
+                         :as request}
+      {:status  200
+       :headers {"Content-Type" "text/html"}
+       :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
+                                                                      :get-thing get-thing
+                                                                      :put-thing! put-thing!})))})))
 
 (defmethod ig/init-key :anathema-re.handler/resources [_ options]
   (comp-route/resources "/"))
