@@ -64,16 +64,34 @@
 
     (add-entity-to-page-state! player-entity)))
 
+(defn print-pass [t]
+  (println t)
+  t)
+
+(defn load-cache-with! [entity-type thing sync-fn]
+  (let [type-structure (entity-type thing)]
+    (when (vector? type-structure)
+      (async/go
+        (->> (entity-type thing)
+             (map (fn [a] [entity-type a]))
+             (map sync-fn)
+             doall))))
+  thing)
+
 (defn sync-path-from-server [path]
   (let [promise-ch (async/promise-chan)]
+    (println "Getting the thing for path " path)
     (async/go
       (-> (.fetch js/window (data/get-api-uri-from-path path))
           (.then (fn [a] (.text a)))
-          (.then (fn [a] (async/put! promise-ch (put-under-path! path (transit/read (transit/reader :json) a)))))))
+          (.then (fn [a] (transit/read (transit/reader :json) a)))
+          (.then (fn [a] (load-cache-with! :character a sync-path-from-server)))
+          (.then (fn [a] (load-cache-with! :rulebook a sync-path-from-server)))
+          (.then (fn [a] (async/put! promise-ch (put-under-path! path a))))))
     promise-ch))
 
 (def starting-page-gets
-  [[:rulebook "0"]])
+  []);[:rulebook "0"]])
 
 (defn init-app-state [mounting-callback page-path]
   (async/go
