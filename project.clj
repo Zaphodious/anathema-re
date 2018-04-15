@@ -4,6 +4,7 @@
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.238"]
+                 [org.clojure/core.async "0.4.474"]
                  [com.cognitect/transit-clj "0.8.303"]
                  [com.cognitect/transit-cljs "0.8.256"]
                  [duct/core "0.6.2"]
@@ -20,7 +21,6 @@
                  [com.cemerick/url "0.1.1"]
                  [jstrutz/hashids "1.0.1"]
                  [com.fasterxml.jackson.core/jackson-core "2.9.5"]
-                 [cljs-ajax "0.7.3"]
                  [bk/ring-gzip "0.3.0"]]
   :plugins [[duct/lein-duct "0.10.6"]
             [lein-environ "1.1.0"]]

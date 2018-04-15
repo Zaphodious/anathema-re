@@ -29,28 +29,32 @@
        :body
                 (make-html5 (rum/render-static-markup (#'ui/homepage {:path [:home]
                                                                       :get-thing get-thing
-                                                                      :put-thing! put-thing!})))})
+                                                                      :put-thing! put-thing!
+                                                                      :entity (get-thing [:home])})))})
     (GET "/character/*" {:keys [uri headers query-string]
                          :as request}
       {:status  200
        :headers {"Content-Type" "text/html"}
        :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
                                                                       :get-thing get-thing
-                                                                      :put-thing! put-thing!})))})
+                                                                      :put-thing! put-thing!
+                                                                      :entity (data/get-path-from-uri uri)})))})
     (GET "/player/*" {:keys [uri headers query-string]
                          :as request}
       {:status  200
        :headers {"Content-Type" "text/html"}
        :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
                                                                       :get-thing get-thing
-                                                                      :put-thing! put-thing!})))})
+                                                                      :put-thing! put-thing!
+                                                                      :entity (data/get-path-from-uri uri)})))})
     (GET "/rulebook/*" {:keys [uri headers query-string]
                          :as request}
       {:status  200
        :headers {"Content-Type" "text/html"}
        :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
                                                                       :get-thing get-thing
-                                                                      :put-thing! put-thing!})))})))
+                                                                      :put-thing! put-thing!
+                                                                      :entity (data/get-path-from-uri uri)})))})))
 
 (defmethod ig/init-key :anathema-re.handler/resources [_ options]
   (comp-route/resources "/"))

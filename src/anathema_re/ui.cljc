@@ -5,14 +5,6 @@
 
 (defmulti page-for #(-> % :path first))
 
-
-(defn set-data-atom! [path get-thing state-atom]
-  #?(:cljs (async/take! (get-thing path) (fn [a]
-                                           (let [current @state-atom]
-                                             (when (not (= a current))
-                                               (reset! state-atom a)))))
-     :clj (reset! state-atom (async/<!! (get-thing path)))))
-
 #?(:clj
     (rum/defc loading-page [{:keys [path get-thing] :as optsmap}]
       (let [{:keys [name img] :as thing} (get-thing path)]
@@ -21,8 +13,10 @@
          [:p (str "Loading page for " name)]])))
 
 (rum/defc app-core < rum/reactive
-  [{:keys [path get-thing reactive-atom] :as optsmap}]
+  [{:keys [path get-thing reactive-atom entity] :as optsmap}]
   (when reactive-atom (rum/react reactive-atom))
+  (println "thing is definitely " (get-thing path) " at " path)
+  (println "atomo is " reactive-atom)
   (let [{:keys [name category]
          :as entity-to-render} (get-thing path)
         page #?(:clj (loading-page optsmap)
@@ -43,7 +37,7 @@
     [:meta {:name :viewport :content "width=device-width, initial-scale=1"}]
     [:link {:rel "preload" :href "/style/main.css" :as "style"}]
     [:link {:rel "preload" :href "/js/main.js" :as "script"}]
-    [:link {:rel "preload" :href (data/get-api-uri-from-path path)
+    [:link {:rel "preload" :href (str (data/get-api-uri-from-path path) "?full=true")
             :as  "fetch" :type "text/json"}]
     [:link {:rel "manifest" :href "/manifest.json"}]
     [:link {:rel "stylesheet" :href "/style/main.css" :type "text/css"}]

@@ -7,12 +7,15 @@
 (js/console.log "Does this reload?")
 
 
-(defn mount-it []
-      (rum/mount (ui/app-core {:path          (data/get-path-from-uri (.. js/window -location -pathname))
-                               :get-thing     dl/get-under-path
-                               :put-thing!    (fn [a] a)
-                               :reactive-atom dl/page-temp-state
-                               :current-user  ""})
-                 (.getElementById js/document "appmount")))
+(defn init-client [path]
+  (dl/init-app-state
+    #(rum/mount (ui/app-core {:path          path
+                              :get-thing     dl/get-under-path
+                              :put-thing!    (fn [a] a)
+                              :reactive-atom dl/page-temp-state
+                              :current-user  ""
+                              :entity (dl/get-under-path path)})
+                (.getElementById js/document "appmount"))
+    path))
 
-(mount-it)
+(init-client (data/get-path-from-uri (.. js/window -location -pathname)))
