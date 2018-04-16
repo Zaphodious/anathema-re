@@ -14,55 +14,45 @@
 (defn make-html5 [render-str]
   (str "<!DOCTYPE html>\n" render-str))
 
-
+(defn make-page-response [get-thing put-thing! environ user-info-get path]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body
+   (make-html5 (rum/render-static-markup (#'ui/homepage
+                                           {:path path
+                                            :get-thing get-thing
+                                            :put-thing! put-thing!
+                                            :user-info-get user-info-get
+                                            :api-key (:goog-api environ)
+                                            :entity path})))})
 
 (defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js get-thing put-thing! environ] :as options}]
-  (routes
-    (GET "/style/main.css" []
-      {:status  200
-       :headers {"Content-Type" "text/css"}
-       :body
-                (#'style/compile-style)})
-    (GET "/" []
-      {:status  200
-       :headers {"Content-Type" "text/html"}
-       :body
-                (make-html5 (rum/render-static-markup (#'ui/homepage {:path [:home]
-                                                                      :get-thing get-thing
-                                                                      :put-thing! put-thing!
-                                                                      :entity (get-thing [:home])})))})
-    (GET "/sitekey.js" []
-      {:status 200
-       :headers {"Content-Type" "application/javascript"
-                 "Cache-Control" "no-cache, no-store, must-revalidate"}
-       :body (str "var sitekey = " "\"" (:goog-api environ) "\"")})
-    (GET "/character/*" {:keys [uri headers query-string]
-                         :as request}
-      {:status  200
-       :headers {"Content-Type" "text/html"}
-       :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
-                                                                      :get-thing get-thing
-                                                                      :put-thing! put-thing!
-                                                                      :api-key (:goog-api environ)
-                                                                      :entity (data/get-path-from-uri uri)})))})
-    (GET "/player/:key" {:keys [uri headers query-string]
-                               :as request}
-      {:status  200
-       :headers {"Content-Type" "text/html"}
-       :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
-                                                                      :get-thing get-thing
-                                                                      :put-thing! put-thing!
-                                                                      :api-key (:goog-api environ)
-                                                                      :entity (data/get-path-from-uri uri)})))})
-    (GET "/rulebook/*" {:keys [uri headers query-string]
-                         :as request}
-      {:status  200
-       :headers {"Content-Type" "text/html"}
-       :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
-                                                                      :get-thing get-thing
-                                                                      :put-thing! put-thing!
-                                                                      :api-key (:goog-api environ)
-                                                                      :entity (data/get-path-from-uri uri)})))})))
+  (let [page-make (partial make-page-response get-thing put-thing! environ (fn [a] nil))]
+    (routes
+      (GET "/style/main.css" []
+        {:status  200
+         :headers {"Content-Type" "text/css"}
+         :body
+                  (#'style/compile-style)})
+      (GET "/" []
+        (page-make [:home]))
+
+      (GET "/oauth" [])
+      (GET "/sitekey.js" []
+        {:status 200
+         :headers {"Content-Type" "application/javascript"
+                   "Cache-Control" "no-cache, no-store, must-revalidate"}
+         :body (str "var sitekey = " "\"" (:goog-api environ) "\"")})
+      (GET "/character/*" {:keys [uri headers query-string]
+                           :as request}
+        (page-make (data/get-path-from-uri uri)))
+      (GET "/player/*" {:keys [uri headers query-string
+                                 :as request]}
+        (page-make (data/get-path-from-uri uri)))
+
+      (GET "/rulebook/*" {:keys [uri headers query-string]
+                           :as request}
+        (page-make (data/get-path-from-uri uri))))))
 
 (defmethod ig/init-key :anathema-re.handler/resources [_ options]
   (comp-route/resources "/"))
