@@ -7,4 +7,5 @@
 (defmethod ig/init-key :anathema-re.boundary/environ [_ options]
   (println "resetting environ")
   {:mongodb-uri (url/url-decode (env :mongodb-uri ""))
-   :masterkey (env :masterkey)})
+   :masterkey (env :masterkey)
+   :goog-api (env :goog-api)})

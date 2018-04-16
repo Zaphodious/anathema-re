@@ -20,7 +20,7 @@
                  [com.novemberain/monger "3.1.0"]
                  [com.cemerick/url "0.1.1"]
                  [jstrutz/hashids "1.0.1"]
-                 [com.fasterxml.jackson.core/jackson-core "2.9.5"]
+                 [com.fasterxml.jackson.core/jackson-core "2.9.5"] ;Repl crashes without it. 🤷
                  [bk/ring-gzip "0.3.0"]]
   :plugins [[duct/lein-duct "0.10.6"]
             [lein-environ "1.1.0"]]
@@ -38,7 +38,8 @@
    :project/dev  {:source-paths   ["dev/src"]
                   :resource-paths ["dev/resources"]
                   :env {:mongodb-uri "mongodb%3A%2F%2Flocalhost%3A27017%2Fanathema"
-                        :masterkey "devkey42"}
+                        :masterkey "devkey42"
+                        :goog-api "29298066663-qjl14dig7cbd0n128pq5r2cctc7pqrrq.apps.googleusercontent.com"}
                   :dependencies   [[integrant/repl "0.2.0"]
                                    [eftest "0.4.1"]
                                    [kerodon "0.9.0"]]}})

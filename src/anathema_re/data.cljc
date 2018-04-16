@@ -69,9 +69,14 @@
            (h/encode hash-ops (rand-int 99999) (rand-int 99999) (rand-int 99999))
      :cljs (str "temp_" (.toLocaleDateString (js/Date.)) (rand-int 999999) (rand-int 999999))))
 
+(defn print-pass [a]
+  (println "vecci is " (pr-str a))
+  a)
+
 (defn read-path [path-vec]
   (->> path-vec
        (filter #(not (empty? %)))
+       (sp/transform [(sp/nthpath 1)] pr-str) ; Prevents ids from being read as numbers.
        (map reader/read-string)
        (map (fn [a] (if (symbol? a)
                       (keyword (name a))

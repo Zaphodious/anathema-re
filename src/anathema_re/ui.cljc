@@ -19,8 +19,7 @@
   (println "atomo is " reactive-atom)
   (let [{:keys [name category]
          :as entity-to-render} (get-thing path)
-        page #?(:clj (loading-page optsmap)
-                :cljs (page-for optsmap))]
+        page (page-for optsmap)]
     (println "thing is " entity-to-render)
     [:#app-frame
      [:.page-title [:h1 name]]
@@ -31,7 +30,7 @@
               [:li [:i.material-icons.menu-icon "book"] [:span.label "My Rulebooks"]]]]
      [:#content [:.page page]]]))
 
-(rum/defc homepage [{:keys [path get-thing] :as optsmap}]
+(rum/defc homepage [{:keys [path get-thing api-key] :as optsmap}]
   [:html {:lang "en" :class "home"}
    [:head
     [:meta {:name :viewport :content "width=device-width, initial-scale=1"}]
@@ -44,10 +43,10 @@
     [:link {:rel "stylesheet" :href "/style/font.css" :type "text/css"}]
     [:link {:rel "stylesheet" :href "https://fonts.googleapis.com/icon?family=Material+Icons" :type "text/css"}]
     [:link {:rel "icon" :type "image/png" :href "/img/gilted-logo.jpg"}]]
-
-
    [:body
     [:#appmount (app-core optsmap)]
+    [:script {:src "/sitekey.js"}]
+    [:script {:src "https://smartlock.google.com/client"}]
     [:script {:src "/js/main.js"}]]])
 
 

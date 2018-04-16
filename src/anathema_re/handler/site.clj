@@ -16,7 +16,7 @@
 
 
 
-(defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js get-thing put-thing!] :as options}]
+(defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js get-thing put-thing! environ] :as options}]
   (routes
     (GET "/style/main.css" []
       {:status  200
@@ -31,6 +31,11 @@
                                                                       :get-thing get-thing
                                                                       :put-thing! put-thing!
                                                                       :entity (get-thing [:home])})))})
+    (GET "/sitekey.js" []
+      {:status 200
+       :headers {"Content-Type" "application/javascript"
+                 "Cache-Control" "no-cache, no-store, must-revalidate"}
+       :body (str "var sitekey = " "\"" (:goog-api environ) "\"")})
     (GET "/character/*" {:keys [uri headers query-string]
                          :as request}
       {:status  200
@@ -38,14 +43,16 @@
        :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
                                                                       :get-thing get-thing
                                                                       :put-thing! put-thing!
+                                                                      :api-key (:goog-api environ)
                                                                       :entity (data/get-path-from-uri uri)})))})
-    (GET "/player/*" {:keys [uri headers query-string]
-                         :as request}
+    (GET "/player/:key" {:keys [uri headers query-string]
+                               :as request}
       {:status  200
        :headers {"Content-Type" "text/html"}
        :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
                                                                       :get-thing get-thing
                                                                       :put-thing! put-thing!
+                                                                      :api-key (:goog-api environ)
                                                                       :entity (data/get-path-from-uri uri)})))})
     (GET "/rulebook/*" {:keys [uri headers query-string]
                          :as request}
@@ -54,6 +61,7 @@
        :body    (make-html5 (rum/render-static-markup (#'ui/homepage {:path (data/get-path-from-uri uri)
                                                                       :get-thing get-thing
                                                                       :put-thing! put-thing!
+                                                                      :api-key (:goog-api environ)
                                                                       :entity (data/get-path-from-uri uri)})))})))
 
 (defmethod ig/init-key :anathema-re.handler/resources [_ options]

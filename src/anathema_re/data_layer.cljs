@@ -10,6 +10,8 @@
          :player {}
          :current-player nil}))
 
+(def goog-key-atom (atom ""))
+
 (defmulti add-entity :category)
 (defmethod add-entity :default [{:keys [category key]
                                  :as entity}]
@@ -91,7 +93,14 @@
     promise-ch))
 
 (def starting-page-gets
-  []);[:rulebook "0"]])
+  [[:rulebook "0"]])
+
+(defn sync-site-key []
+  (async/go
+    (-> (.fetch js/window "/site-key.txt")
+        (.then #(.text %))
+        (.then #(print-pass %))
+        (.then #(reset! goog-key-atom %)))))
 
 (defn init-app-state [mounting-callback page-path]
   (async/go
@@ -106,14 +115,16 @@
 
 
 
-(defn get-under-path [path]
+(defn get-under-path
+  "Takes a vector path, returns either the entity requested or nil. Attempts to get the entity from
+  the server if not present. Bear in mind that the UI refreshes automatically when the state atom is changed."
+  [path]
   (println "getting " path)
   (let [result (first (sp/select [sp/ATOM (apply sp/keypath path)] page-temp-state))]
     (if result
       result
-      (do
-        ;(sync-path-from-server path)
-        nil))))
+      (do (sync-path-from-server path) nil))))
 
 (defn ^:export debug-print-state []
-  (println "page-temp-state: " page-temp-state))
+  (println "page-temp-state: " page-temp-state)
+  (println "key is " goog-key-atom))

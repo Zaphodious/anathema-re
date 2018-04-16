@@ -24,7 +24,8 @@
  :anathema-re.boundary/put      {:mongo #ig/ref :anathema-re.boundary.mongo/connection}
 
  :anathema-re.handler/example   {}
- :anathema-re.handler/site      {:get-thing #ig/ref :anathema-re.boundary/get
+ :anathema-re.handler/site      {:environ #ig/ref :anathema-re.boundary/environ
+                                 :get-thing #ig/ref :anathema-re.boundary/get
                                  :put-thing! #ig/ref :anathema-re.boundary/put}
  :anathema-re.handler/js {}
  :anathema-re.handler/api {:get-thing #ig/ref :anathema-re.boundary/get
