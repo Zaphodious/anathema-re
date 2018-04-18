@@ -2,12 +2,10 @@
   (:require [anathema-re.ui :as ui]
             [rum.core :as rum]
             [anathema-re.data :as data]
-            [anathema-re.data-layer :as dl]))
+            [anathema-re.data-layer :as dl]
+            [anathema-re.auth-flow :as aaf]))
 
 (js/console.log "Does this reload?")
-
-(defn yo-retrieve [g-yolo]
-  ())
 
 (defn yo-load [g-yolo]
   (println "Starting YOLO Service")
@@ -15,16 +13,18 @@
                   :supportedIdTokenProviders [{:uri      "https://accounts.google.com"
                                                :clientId js/sitekey}]}
         retrieve-promise (.retrieve g-yolo (clj->js auth-obj))
-        hint-promise (-> g-yolo (.hint (clj->js (assoc auth-obj :context "signUp"))) (.then (fn [a] (println "token is " (.-idToken a)))))]
+        hint-promise (-> g-yolo (.hint (clj->js (assoc auth-obj :context "signUp")))
+                         (.then (fn [a] (println "token is " (.-idToken a)))))]
 
     (-> retrieve-promise
         (.catch (fn [a] (println "sign-in failed, " a) a))
         (.catch (fn [a] (.hint g-yolo (clj->js (assoc auth-obj :context "signUp")))))
-        (.then (fn [credential] (println "Credential is " (js->clj credential)))
+        (.then dl/handle-credential
                (fn [error] (println "Credential error is " (js->clj error)))))))
 
 (defn init-client [path]
-  (set! (.-onGoogleYoloLoad js/window) yo-load)
+  (set! (.-onGoogleYoloLoad js/window)
+        (fn [a] (aaf/init-auth a)))
   (dl/init-app-state
     #(rum/mount (ui/app-core {:path          path
                               :get-thing     dl/get-under-path

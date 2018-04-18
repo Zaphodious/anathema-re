@@ -6,6 +6,7 @@
 
 (defmulti page-for #(-> % :path first))
 
+
 #?(:clj
     (rum/defc loading-page [{:keys [path get-thing] :as optsmap}]
       (let [{:keys [name img] :as thing} (get-thing path)]
@@ -18,11 +19,12 @@
      (gapi/signin-button :client-id api-key)))
 
 (rum/defc app-core < rum/reactive
-  [{:keys [path get-thing reactive-atom entity api-key user-info-get put-thing!] :as optsmap}]
+  [{:keys [path get-thing reactive-atom entity api-key user-info-get put-thing! auth-button-chan] :as optsmap}]
   (when reactive-atom (rum/react reactive-atom))
   ;(println "thing is definitely " (get-thing path) " at " path)
  ; (println "atomo is " reactive-atom)
-  (let [{:keys [name category]
+  (let [home? (empty? path)
+        {:keys [name category]
          :as entity-to-render} (get-thing path)
         page (page-for optsmap)]
     ;(println "thing is " entity-to-render)
@@ -30,7 +32,7 @@
      [:.page-title [:h1 name]]
      #?(:cljs (gapi/signin-button :client-id api-key
                                   :on-success (fn [google-user]
-                                                (-> google-user (.getAuthResponse) js->clj println))
+                                                (-> google-user (.getAuthResponse) (js->clj) (pr-str) (println)))
                                   :on-failure println))
      [:#menu [:ul [:li [:i.material-icons.menu-icon "apps"] [:span.label "Home"]]
               [:li [:i.material-icons.menu-icon "settings"] [:span.label "Settings"]]

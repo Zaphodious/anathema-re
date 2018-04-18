@@ -1,35 +1,45 @@
 (ns anathema-re.boundary.goog-oauth
-  (:require
-    [cheshire.core :refer [parse-string]]
-    [clj-oauth2.client :as oauth2]))
+  (:require [integrant.core :as ig])
+  (:import [com.google.api.client.googleapis.auth.oauth2
+            GoogleIdToken
+            GoogleIdToken$Payload
+            GoogleIdTokenVerifier$Builder
+            GoogleIdTokenVerifier]
+           [JacksonFactory]
+           [NetHttpTransport]
+           (com.google.api.client.json.jackson2 JacksonFactory)
+           (com.google.api.client.http.javanet NetHttpTransport)))
 
-(def login-uri
-  "https://accounts.google.com")
+(defn- google-check [client-id token]
+  "Returns GoogleTokenId instance if the token is valid"
+  (let [jsonFactory (JacksonFactory.)
+        transport   (NetHttpTransport.)
+        v           (.. (GoogleIdTokenVerifier$Builder. transport jsonFactory)
+                        (setAudience (list client-id))
+                        (build))]
 
-(def google-com-oauth2
-  {:authorization-uri (str login-uri "/o/oauth2/auth")
-   :access-token-uri (str login-uri "/o/oauth2/token")
-   :redirect-uri "http://localhost:8080/authentication/callback"
-   :client-id "CLIENT"
-   :client-secret "CLIENT-SECRET"
-   :access-query-param :access_token
-   :scope ["https://www.googleapis.com/auth/userinfo.email"]
-   :grant-type "authorization_code"
-   :access-type "online"
-   :approval_prompt ""})
+    (.verify v token)))
 
-(def auth-req
-  (oauth2/make-auth-request google-com-oauth2))
+(defn- google-verify->map [goog-resp]
+  (let [payload (.getPayload goog-resp)]
+    {:user-id (.getSubject payload)
 
-(defn- google-access-token [request]
-  (oauth2/get-access-token google-com-oauth2 (:params request) auth-req))
+     :email (.getEmail payload)
+     :email-verified (.getEmailVerified payload)
+     :name (.get payload "name")
+     :picture-url (.get payload "picture")
+     :locale (.get payload "locale")
+     :family-name (.get payload "family_name")
+     :given-name (.get payload "given_name")}))
+     ;:string (.toString goog-resp)}))
 
-(defn- google-user-email [access-token]
-  (let [response (oauth2/get "https://www.googleapis.com/oauth2/v1/userinfo" {:oauth access-token})]
-    (get (parse-string (:body response)) "email")))
+(defn verify-token [client-id token]
+  (let [goog-resp (when (and client-id token)
+                    (google-check client-id token))
+        resp-map (if goog-resp
+                   (google-verify->map goog-resp)
+                   {:user-id nil})]
+    resp-map))
 
-;; Redirect them to (:uri auth-req)
-
-;; When they comeback to /authentication/callback (google-user-email)
-;=> user's email trying to log in (google-access-token *request*))
-
+(defmethod ig/init-key :anathema-re.boundary/goog-oauth [_ {:keys [environ]}]
+  (partial verify-token (:goog-api environ)))

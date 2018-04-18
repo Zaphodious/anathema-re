@@ -79,9 +79,10 @@
              {:upsert true}))
 
 (defn- get-thing-from-db [db category id]
-  (-> (mc/find-map-by-id db (name category) id)
-      (dissoc :_id)
-      (assoc :category (keyword category))))
+  (when (and db category id)
+    (-> (mc/find-map-by-id db (name category) id)
+        (dissoc :_id)
+        (assoc :category (keyword category)))))
 
 (defn- get-player-from-db [db player-id]
   (assoc (dissoc (mc/find-map-by-id db player-collection player-id) :_id) :category :player))

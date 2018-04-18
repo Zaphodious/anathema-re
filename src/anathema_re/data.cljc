@@ -86,12 +86,15 @@
       (str/replace "/api/" "")
       (str/split #"\.")
       first
-      (str/split #"/")))
+      (str/split #"/")
+      print-pass))
 (defn get-path-from-uri [uri]
-  (-> uri
-      (split-uri)
-      (read-path)
-      vec))
+  (if uri
+    (-> uri
+        (split-uri)
+        (read-path)
+        vec)
+    []))
 
 (defn get-api-uri-from-path
   ([path] (get-api-uri-from-path path :transit))

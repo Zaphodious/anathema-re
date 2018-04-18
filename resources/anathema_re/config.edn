@@ -18,6 +18,7 @@
                                  #ig/ref :anathema-re.handler/api]
 
  :anathema-re.boundary/environ  {}
+ :anathema-re.boundary/goog-oauth {:environ #ig/ref :anathema-re.boundary/environ}
 
  :anathema-re.boundary.mongo/connection    {:environ #ig/ref :anathema-re.boundary/environ}
  :anathema-re.boundary/get      {:mongo #ig/ref :anathema-re.boundary.mongo/connection}
@@ -29,5 +30,6 @@
                                  :put-thing! #ig/ref :anathema-re.boundary/put}
  :anathema-re.handler/js {}
  :anathema-re.handler/api {:get-thing #ig/ref :anathema-re.boundary/get
-                           :put-thing! #ig/ref :anathema-re.boundary/put}
+                           :put-thing! #ig/ref :anathema-re.boundary/put
+                           :goog-oauth #ig/ref :anathema-re.boundary/goog-oauth}
  :anathema-re.handler/resources {}}

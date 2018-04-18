@@ -3,7 +3,8 @@
             [compojure.core :refer :all :as com]
             [clojure.string :as str]
             [anathema-re.data :as data]
-            [clojure.core.async :as async]))
+            [clojure.core.async :as async]
+            [clojure.set :as set]))
 
 (defn fill-vec-of [vec-of category-key get-thing]
   (->> vec-of
@@ -25,9 +26,37 @@
           (assoc :category :player-full)))
     (get-thing path)))
 
-(defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing!]
+(defn handle-player-me-data [{:keys [get-thing put-thing! goog-oauth]} {:strs [token] :as headers}]
+  (let [player-me (goog-oauth token)
+        player-path [:player (:user-id player-me)]
+        existant-player (get-thing player-path)
+        new-player (merge
+                     {:character [] :rulebook []}
+                     existant-player
+                     (set/rename-keys player-me {:user-id :key :picture-url :img}))]
+
+    (println "player is " (pr-str new-player))
+    (async/go (put-thing! player-path new-player))
+    new-player))
+
+
+
+
+
+(defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth]
                                                     :as opts}]
   (routes
+    (GET "/api/player/me.:file-ext" [file-ext :as {:keys [headers]}]
+      (let [dest-format (if file-ext
+                          (keyword file-ext)
+                          :transit)]
+        ;(println "header is " headers)
+        {:status  200
+         :headers {"Content-Type"  (data/content-type-for dest-format)
+                   "Cache-Control" "no-cache, no-store, must-revalidate"}
+         :body    (data/write-data-as (handle-player-me-data opts headers)
+                                      dest-format)}))
+
     (GET "/api/*.:file-ext"
          [file-ext full :as
           {:keys [uri headers query-string]

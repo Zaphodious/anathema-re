@@ -93,7 +93,8 @@
     promise-ch))
 
 (def starting-page-gets
-  [[:rulebook "0"]])
+  [;[:rulebook "0"]
+   [:player "me"]])
 
 (defn sync-site-key []
   (async/go
@@ -108,6 +109,7 @@
       (map
         sync-path-from-server
         starting-page-gets)))
+  (async/go (let [player-me ()]))
   (async/go
     (let [_ (async/<! (sync-path-from-server page-path))]
       (mounting-callback)
@@ -124,6 +126,11 @@
     (if result
       result
       (do (sync-path-from-server path) nil))))
+
+(defn handle-credential [{:keys [idToken] :as credential}]
+  (println "handling credential for " (pr-str credential))
+  (println "credential swapped result: "(swap! page-temp-state (fn [a] (assoc a :current-player idToken)))))
+;(sp/transform [(sp/keypath :current-player)] (constantly idToken) page-temp-state))
 
 (defn ^:export debug-print-state []
   (println "page-temp-state: " page-temp-state)
