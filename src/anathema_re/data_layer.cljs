@@ -17,8 +17,8 @@
 
 (defn make-mod-path [path]
    (if (= "me" (second path))
-       (assoc path 1 (or (:current-player @page-temp-state) "010101"))
-       path))
+     (-> path vec (assoc 1 (or (:current-player @page-temp-state) "010101")))
+     path))
 
 (defn make-request-headers []
   (let [token (:token @auth-cache)]
@@ -59,7 +59,7 @@
 
 (defn add-entity-to-page-state! [{:keys [category key]
                                   :as entity}]
-  (println "adding " key ", the " category)
+  ;(println "adding " key ", the " category)
   (sp/transform [sp/ATOM (sp/keypath category key)]
                 (fn [_] entity)
                 page-temp-state))
@@ -100,7 +100,7 @@
 (defn sync-path-from-server [path]
   (let [promise-ch (async/promise-chan)
         mod-path (make-mod-path path)]
-    (println "Getting the thing for path " mod-path)
+    ;(println "Getting the thing for path " mod-path)
     (async/go
       (-> (.fetch js/window (data/get-api-uri-from-path path) (make-request-headers))
           (.then (fn [a] (.text a)))
@@ -114,13 +114,13 @@
   (let [auth @auth-cache]
     (when (not (empty? auth))
       (do
-        (println "syncing this all up and down!")
+        ;(println "syncing this all up and down!")
         (sp/transform [sp/ATOM :current-player] (constantly (:key auth))
                       page-temp-state)
         (sync-path-from-server [:player "me"])))))
 
 (def starting-page-gets
-  [[:rulebook "0"]])
+  []);[:rulebook "0"]])
 
 
 (defn sync-site-key []
@@ -139,8 +139,8 @@
   (async/go (auth-cache-to-temp-state!))
   (async/go
     (let [_ (async/<! (sync-path-from-server page-path))]
-      (mounting-callback)
-      (println "At this point, atom is " page-temp-state))))
+      (mounting-callback))))
+      ;(println "At this point, atom is " page-temp-state))))
 
 
 
@@ -148,7 +148,7 @@
   "Takes a vector path, returns either the entity requested or nil. Attempts to get the entity from
   the server if not present. Bear in mind that the UI refreshes automatically when the state atom is changed."
   [path]
-  (println "getting " path)
+  ;(println "getting " path)
   (let [mod-path (make-mod-path path)
         result (first (sp/select [sp/ATOM (apply sp/keypath mod-path)] page-temp-state))]
     (if result

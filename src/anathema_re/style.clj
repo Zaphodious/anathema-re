@@ -321,6 +321,15 @@ title-bg-color
          [:li {:list-style :none} ;:border :solid}
           [:* {:display :block
                :width :100%}]]]]]]]]
+   [:.form-of {:padding-right :10px
+               :padding-left :10px
+               :padding-top :5px}
+    [:.form-row {:height :1.3em}
+     [:.readonly {}
+      [:&:before {:content "\" |  \""}]];:border-bottom "solid 1px black"}]
+     [:label {:display :inline-block
+              :width :30%}
+      [:&:after]]]]
    [:input :select :textarea {:background-color :transparent ;(gc/rgba 255 255 255 0.0)
                               :background-image (url "/img/blue_text_back.png")
                               :background-position :center
@@ -351,3 +360,8 @@ title-bg-color
 
 (defn compile-style []
   (add-generated-statement (g/css main-style)))
+
+(defn spit-style []
+  (spit "resources/anathema_re/public/style/main.css"
+        (compile-style)))
+(spit-style)

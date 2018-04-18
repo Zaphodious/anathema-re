@@ -11,10 +11,10 @@
                                                  :clientId js/sitekey}]})
 
 (defn retrieve [g-yolo]
-  (println "Starting YOLO Service")
+  ;(println "Starting YOLO Service")
   (let [return-chan (async/promise-chan)
         retrieve-promise (.retrieve g-yolo (clj->js auth-opts-map))]
-    (println "retrieving!")
+    ;(println "retrieving!")
     (-> retrieve-promise
         ;(.catch (fn [a] (println "sign-in failed, " a) a))
         ;(.catch (fn [a] (.hint g-yolo (clj->js (assoc auth-obj :context "signUp")))))
@@ -24,7 +24,7 @@
 
 (defn hint [input-chan g-yolo]
   (let [return-chan (async/promise-chan)]
-    (println "Hinting!")
+    ;(println "Hinting!")
     (async/take! input-chan
                  (fn [result]
                    (if result
@@ -36,7 +36,7 @@
 
 (defn button-into-flow [input-chan button-chan]
   (let [return-chan (async/promise-chan)]
-    (println "Making the button thing!")
+    ;(println "Making the button thing!")
     (async/go
       (let [input-result (async/<! input-chan)
             total-result (if input-result input-result
@@ -61,21 +61,21 @@
         (dl/auth-cache-to-temp-state!)))))
 
 (defn transform-auth-response-chan [input-chan]
-  (println "transorming button thing!")
+  ;(println "transorming button thing!")
   (async/take! input-chan transform-auth-response))
 
 (defn confirm-auth-valid []
   (let [{:keys [valid-until]} @dl/auth-cache
         the-now (/ (.getTime (js/Date.)) 1000)]
-    (println "valid until " valid-until "while now is " the-now)
+    ;(println "valid until " valid-until "while now is " the-now)
     (and valid-until (> valid-until the-now))))
 
-(defn refresh-page [_]
-  (.reload js/location true))
+(defn refresh-page [_])
+  ;(.reload js/location true))
 
 (defn init-auth [yolo]
   (when (not (confirm-auth-valid))
-    (-> (retrieve yolo) (hint yolo) transform-auth-response-chan refresh-page)))
+    (-> (retrieve yolo) (hint yolo) transform-auth-response-chan)))
 
       ;transform-auth-response-chan))
 

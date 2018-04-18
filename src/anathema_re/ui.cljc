@@ -2,6 +2,7 @@
   (:require [rum.core :as rum]
             [clojure.core.async :as async]
             [anathema-re.data :as data]
+            [anathema-re.ui.defs :as auid]
             #?(:cljs [anathema-re.google-signin-button :as gapi])))
 
 (defmulti page-for #(-> % :path first))
@@ -73,6 +74,8 @@
     [:script {:src "/js/main.js"}]
     [:script {:src "https://apis.google.com/js/platform.js" :async true :defer true}]]])
 
+(rum/defc form-of [fieldmap]
+  [:.form-of [:span.label "Thing"] [:span.field "Some"]])
 
 (rum/defc root-page [{:keys [path get-thing put-thing!]}]
   [:.interior
@@ -88,9 +91,9 @@
    [:p (str "thing is at " path " that can be gotten with " get-thing)]])
 
 (rum/defc player-page < rum/reactive
-  [{:keys [path get-thing put-thing! current-player-atom]}]
-  [:.interior
-   (str (dissoc (get-thing path) :token))])
+  [{:keys [path get-thing put-thing! current-player-atom] :as opts}]
+  (let [{:keys [name] :as player} (get-thing path)]
+    [:.interior (auid/profile-page opts)]))
 
 (defmethod page-for nil
   [optmap] (root-page optmap))

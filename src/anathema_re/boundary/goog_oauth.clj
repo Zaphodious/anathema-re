@@ -32,6 +32,7 @@
      :email (.getEmail payload)
      :email-verified (.getEmailVerified payload)
      :name (.get payload "name")
+     :real-name (.get payload "name")
      :picture-url (.get payload "picture")
      :locale (.get payload "locale")
      :family-name (.get payload "family_name")
