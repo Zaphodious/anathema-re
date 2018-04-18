@@ -20,6 +20,13 @@
        (assoc path 1 (or (:current-player @page-temp-state) "010101"))
        path))
 
+(defn make-request-headers []
+  (let [token (:token @auth-cache)]
+    (clj->js {:headers
+              (if token
+                {:token token}
+                {})})))
+
 (def goog-key-atom (atom ""))
 
 (defmulti add-entity :category)
@@ -95,7 +102,7 @@
         mod-path (make-mod-path path)]
     (println "Getting the thing for path " mod-path)
     (async/go
-      (-> (.fetch js/window (data/get-api-uri-from-path mod-path))
+      (-> (.fetch js/window (data/get-api-uri-from-path path) (make-request-headers))
           (.then (fn [a] (.text a)))
           (.then (fn [a] (transit/read (transit/reader :json) a)))
           (.then (fn [a] (load-cache-with! :character a sync-path-from-server)))

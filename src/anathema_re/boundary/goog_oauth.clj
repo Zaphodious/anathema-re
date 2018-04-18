@@ -12,13 +12,15 @@
 
 (defn- google-check [client-id token]
   "Returns GoogleTokenId instance if the token is valid"
-  (let [jsonFactory (JacksonFactory.)
-        transport   (NetHttpTransport.)
-        v           (.. (GoogleIdTokenVerifier$Builder. transport jsonFactory)
-                        (setAudience (list client-id))
-                        (build))]
+  (println "Getting auth for token " token)
+  (when token
+    (let [jsonFactory (JacksonFactory.)
+          transport   (NetHttpTransport.)
+          v           (.. (GoogleIdTokenVerifier$Builder. transport jsonFactory)
+                          (setAudience (list client-id))
+                          (build))]
 
-    (.verify v token)))
+      (.verify v token))))
 
 (defn- google-verify->map [goog-resp token]
   (let [payload (.getPayload goog-resp)
