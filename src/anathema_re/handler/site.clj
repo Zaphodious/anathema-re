@@ -24,7 +24,8 @@
                                             :put-thing! put-thing!
                                             :user-info-get user-info-get
                                             :api-key (:goog-api environ)
-                                            :entity path})))})
+                                            :entity path
+                                            :current-user-atom (atom {})})))})
 
 (defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js get-thing put-thing! environ] :as options}]
   (let [page-make (partial make-page-response get-thing put-thing! environ (fn [a] nil))]

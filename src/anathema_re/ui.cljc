@@ -19,21 +19,31 @@
      (gapi/signin-button :client-id api-key)))
 
 (rum/defc app-core < rum/reactive
-  [{:keys [path get-thing reactive-atom entity api-key user-info-get put-thing! auth-button-chan] :as optsmap}]
-  (when reactive-atom (rum/react reactive-atom))
+  [{:keys [path get-thing reactive-atom api-key user-info-get put-thing! auth-response-handler current-user-atom] :as optsmap}]
+  (when reactive-atom
+    (do (println "reacting to this atom")
+        (rum/react reactive-atom)))
   ;(println "thing is definitely " (get-thing path) " at " path)
  ; (println "atomo is " reactive-atom)
   (let [home? (empty? path)
         {:keys [name category]
          :as entity-to-render} (get-thing path)
+        current-user (rum/react current-user-atom)
         page (page-for optsmap)]
     ;(println "thing is " entity-to-render)
     [:#app-frame
      [:.page-title [:h1 name]]
-     #?(:cljs (gapi/signin-button :client-id api-key
-                                  :on-success (fn [google-user]
-                                                (-> google-user (.getAuthResponse) (js->clj) (pr-str) (println)))
-                                  :on-failure println))
+     #?(:cljs
+        [:#goog-user
+         (if (not (empty? current-user))
+           [:.user-button
+            [:img {:src (:img current-user)}]]
+           (gapi/signin-button :client-id api-key
+                :on-success (fn [google-user]
+                              (auth-response-handler (.getAuthResponse google-user)))
+                                                   ;(-> google-user (.getAuthResponse) (js->clj) (assoc :hello "world") (pr-str) (println)))
+                :on-failure println))])
+
      [:#menu [:ul [:li [:i.material-icons.menu-icon "apps"] [:span.label "Home"]]
               [:li [:i.material-icons.menu-icon "settings"] [:span.label "Settings"]]
               [:li [:i.material-icons.menu-icon "storage"] [:span.label "My Profile"]]
@@ -77,10 +87,10 @@
   [:.interior
    [:p (str "thing is at " path " that can be gotten with " get-thing)]])
 
-(rum/defc player-page
-  [{:keys [path get-thing put-thing!]}]
+(rum/defc player-page < rum/reactive
+  [{:keys [path get-thing put-thing! current-player-atom]}]
   [:.interior
-   (str (get-thing path))])
+   (str (dissoc (get-thing path) :token))])
 
 (defmethod page-for nil
   [optmap] (root-page optmap))

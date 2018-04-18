@@ -29,9 +29,9 @@
   [el & {:keys [on-success on-failure]}]
   (js/gapi.signin2.render el
                           #js {"scope"     "profile email"
-                               "width"     210
+                               "width"     120
                                "height"    40
-                               "longtitle" true
+                               "longtitle" false
                                "theme"     "light"
                                "onsuccess" on-success
                                "onfailure" on-failure}))

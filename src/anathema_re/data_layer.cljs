@@ -2,13 +2,23 @@
   (:require [cljs.core.async :as async]
             [anathema-re.data :as data]
             [cognitect.transit :as transit]
-            [com.rpl.specter :as sp]))
+            [com.rpl.specter :as sp]
+            [alandipert.storage-atom :as statom]))
 
 (def page-temp-state
   (atom {:character {}
          :rulebook {}
          :player {}
          :current-player nil}))
+
+(def auth-cache
+  (statom/session-storage (atom {})
+                          :g-auth))
+
+(defn make-mod-path [path]
+   (if (= "me" (second path))
+       (assoc path 1 (or (:current-player @page-temp-state) "010101"))
+       path))
 
 (def goog-key-atom (atom ""))
 
@@ -81,20 +91,30 @@
   thing)
 
 (defn sync-path-from-server [path]
-  (let [promise-ch (async/promise-chan)]
-    (println "Getting the thing for path " path)
+  (let [promise-ch (async/promise-chan)
+        mod-path (make-mod-path path)]
+    (println "Getting the thing for path " mod-path)
     (async/go
-      (-> (.fetch js/window (data/get-api-uri-from-path path))
+      (-> (.fetch js/window (data/get-api-uri-from-path mod-path))
           (.then (fn [a] (.text a)))
           (.then (fn [a] (transit/read (transit/reader :json) a)))
           (.then (fn [a] (load-cache-with! :character a sync-path-from-server)))
           (.then (fn [a] (load-cache-with! :rulebook a sync-path-from-server)))
-          (.then (fn [a] (async/put! promise-ch (put-under-path! path a))))))
+          (.then (fn [a] (async/put! promise-ch (put-under-path! mod-path a))))))
     promise-ch))
 
+(defn auth-cache-to-temp-state! []
+  (let [auth @auth-cache]
+    (when (not (empty? auth))
+      (do
+        (println "syncing this all up and down!")
+        (sp/transform [sp/ATOM :current-player] (constantly (:key auth))
+                      page-temp-state)
+        (sync-path-from-server [:player "me"])))))
+
 (def starting-page-gets
-  [;[:rulebook "0"]
-   [:player "me"]])
+  [[:rulebook "0"]])
+
 
 (defn sync-site-key []
   (async/go
@@ -109,7 +129,7 @@
       (map
         sync-path-from-server
         starting-page-gets)))
-  (async/go (let [player-me ()]))
+  (async/go (auth-cache-to-temp-state!))
   (async/go
     (let [_ (async/<! (sync-path-from-server page-path))]
       (mounting-callback)
@@ -122,10 +142,11 @@
   the server if not present. Bear in mind that the UI refreshes automatically when the state atom is changed."
   [path]
   (println "getting " path)
-  (let [result (first (sp/select [sp/ATOM (apply sp/keypath path)] page-temp-state))]
+  (let [mod-path (make-mod-path path)
+        result (first (sp/select [sp/ATOM (apply sp/keypath mod-path)] page-temp-state))]
     (if result
       result
-      (do (sync-path-from-server path) nil))))
+      (do (sync-path-from-server mod-path) nil))))
 
 (defn handle-credential [{:keys [idToken] :as credential}]
   (println "handling credential for " (pr-str credential))

@@ -190,11 +190,17 @@ title-bg-color
         :font-family "opendyslexic, sans-serif"
         :font-weight :normal
         :font-size :13px}]
-   [:.google-button {:z-index 500
+   [:#goog-user {:z-index 500
                      :position :fixed
                      :top :5px
                      :right :10px
-                     :border-radius :10px}]
+                     :boder :solid
+                     :border-radius :10px}
+    [:.user-button
+     [:img {:width :40px
+            :height :40px
+            :border-radius :40px}]]
+    [:.abcRioButton {:border-radius :10px}]]
    [:html {:height  (calchelper :100% - :20px)
            :background-image (url "../img/solar_bg.jpg")
            :background-repeat :no-repeat
