@@ -70,11 +70,12 @@
     (println "valid until " valid-until "while now is " the-now)
     (and valid-until (> valid-until the-now))))
 
-
+(defn refresh-page [_]
+  (.reload js/location true))
 
 (defn init-auth [yolo]
   (when (not (confirm-auth-valid))
-    (-> (retrieve yolo) (hint yolo) transform-auth-response-chan)))
+    (-> (retrieve yolo) (hint yolo) transform-auth-response-chan refresh-page)))
 
       ;transform-auth-response-chan))
 
