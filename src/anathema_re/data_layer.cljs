@@ -15,6 +15,8 @@
   (statom/session-storage (atom {})
                           :g-auth))
 
+(def changes-since-last-push (atom []))
+
 (defn make-mod-path [path]
    (if (= "me" (second path))
      (-> path vec (assoc 1 (or (:current-player @page-temp-state) "010101")))
@@ -56,6 +58,9 @@
                   (constantly thing)
                   page-temp-state)))
 
+(defn put-under-path-and-mark-changed! [path thing]
+  (async/take! (put-under-path! path thing)
+               (fn [_] (swap! changes-since-last-push (fn [a] (conj a path))))))
 
 (defn add-entity-to-page-state! [{:keys [category key]
                                   :as entity}]

@@ -16,7 +16,7 @@
                               :put-thing!            (fn [a] a)
                               :reactive-atom         dl/page-temp-state
                               :current-user-atom     dl/auth-cache
-                              :user-info-get         (fn [] nil)
+                              :user-info-get         dl/put-under-path-and-mark-changed!
                               :auth-response-handler aaf/transform-auth-response
                               :api-key               js/sitekey})
                 (.getElementById js/document "appmount"))
