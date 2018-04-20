@@ -36,13 +36,18 @@
         new-player (merge
                      {:character [] :rulebook []}
                      existant-player
-                     (set/rename-keys player-me {:user-id :key :picture-url :img}))]
+                     (-> player-me
+                         (set/rename-keys {:user-id :key :picture-url :img}))
+                     (select-keys existant-player
+                                  [:name :img]))]
+
 
     (println "player is " (pr-str new-player))
     (async/go (put-thing! player-path new-player))
     new-player))
 
 (defn id-for [{:keys [goog-oauth] :as opts} {:strs [token] :as headers}]
+  (println "google auth is " (goog-oauth token))
   (:user-id (goog-oauth token)))
 
 
@@ -57,6 +62,30 @@
   ;       ["452452452" "242424" "852852852" "01010101" "0" "1"]))
 
   (routes
+    (PUT "/api/player/me.:file-ext" []
+      {:status 418
+       :body "Please use player id directly."})
+    (PUT "/api/player/me/*.:file-ext" []
+      {:status 418
+       :body "Please use player id directly."})
+    (PUT "/api/*.:file-ext"  [file-ext full :as
+                              {:keys [uri headers query-string body]
+                               {:strs [file]} :params
+                               :as request}]
+      (let [path (data/get-path-from-uri uri)
+            owner? (data/is-owner? (id-for opts headers) path get-thing)]
+        (println "the logged in id is " (id-for opts headers))
+        (if (and owner? (not (= :owner (last path))))
+          (let [dest-format (if file-ext
+                              (keyword file-ext)
+                              :transit)
+                read-in-content (data/read-data-as body dest-format imgur)
+                write-result (put-thing! path read-in-content)]
+            (println "Should have written in " read-in-content ", under " path)
+            {:status 200
+             :body   write-result})
+          {:status 403
+           :body "NOT AUTHORIZED!"})))
     (GET "/api/player/me.:file-ext" [file-ext :as {:keys [headers]}]
       (let [dest-format (if file-ext
                           (keyword file-ext)
@@ -67,19 +96,9 @@
                    "Cache-Control" "no-cache, no-store, must-revalidate"}
          :body    (data/write-data-as (handle-player-me-data opts headers)
                                       dest-format)}))
-    (PUT "/api/*.:file-ext"  [file-ext full :as
-                               {:keys [uri headers query-string body]
-                                {:strs [file]} :params
-                                :as request}]
-      (let [path (data/get-path-from-uri uri)
-            dest-format (if file-ext
-                          (keyword file-ext)
-                          :transit)
-            read-in-content (data/read-data-as body dest-format imgur)]
-
-        {:status 200
-         :body   read-in-content}))
-
+    (GET "/api/player/me/*.:file-ext" []
+      {:status 418
+       :body "Please use player id directly."})
     (GET "/api/*.:file-ext"
          [file-ext full :as
           {:keys [uri headers query-string]

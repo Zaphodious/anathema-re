@@ -6,7 +6,8 @@
             [clojure.string :as str]
             [clojure.tools.reader :as reader]
     #?(:clj [hashids.core :as h]))
-  #?(:clj (:import (java.io ByteArrayOutputStream))))
+  #?(:clj (:import [java.io ByteArrayOutputStream]
+                   [org.apache.commons.io IOUtils])))
 
 (s/def ::id (s/and string? #(not (empty? %))))
 
@@ -48,15 +49,15 @@
                                       (if verbose? :json-verbose :json)
                                       :msgpack))
                     thing)))
-
-(defn from-transit [thing json? verbose?]
-  #?(:clj (let [in (if json?
-                     (.getBytes thing)
-                     thing)
-                reader (transit/reader in (if json?
-                                            (if verbose? :json-verbose :json)
-                                            :msgpack))]
-            (prn (transit/read reader)))))
+#?(:clj
+    (defn from-transit [thing json? verbose?]
+       (let [in (if (string? thing)
+                   (.getBytes thing)
+                   thing)
+              reader (transit/reader in (if json?
+                                          (if verbose? :json-verbose :json)
+                                          :msgpack))]
+          (prn (transit/read reader)))))
 
 (defn write-data-as [thing format]
   (case format
@@ -65,13 +66,14 @@
     :transit (to-transit thing true false)
     :msgpack (to-transit thing false false)))
 
-(defn read-data-as [thing format imgur]
-  (case format
-    :edn thing
-    :json (from-transit thing true true)
-    :transit (from-transit thing true false)
-    :msgpack (from-transit thing false false)
-    :img (:link (imgur thing))))
+#?(:clj
+    (defn read-data-as [thing format imgur]
+      (case format
+        :edn (read-string (if (string? thing) thing (IOUtils/toString thing)))
+        :json (from-transit thing true true)
+        :transit (from-transit thing true false)
+        :msgpack (from-transit thing false false)
+        :img (:link (imgur thing)))))
 
 (defn content-type-for [format]
   (case (keyword (name format))
