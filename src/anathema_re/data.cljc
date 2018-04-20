@@ -127,4 +127,4 @@
 
 (defn is-owner? [player-id path get-thing]
   (let [get-the-key (fn [a] (-> (take 2 path) (vec) (conj a) (get-thing) (= player-id)))]
-    (or (get-the-key :key) (get-the-key :player) (get-the-key :owner))))
+    (or (get-the-key :key) (get-the-key :owner))))

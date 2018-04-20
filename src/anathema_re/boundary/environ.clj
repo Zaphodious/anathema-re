@@ -5,11 +5,12 @@
     [cemerick.url :as url]))
 
 (defmethod ig/init-key :anathema-re.boundary/environ [_ {:keys [imgur-id
-                                                                imgur-secret]
+                                                                imgur-secret
+                                                                mongo-uri]
                                                          :as options}]
   (println "resetting environ")
   {:imgur-id (or (env :imgur-id) imgur-id)
    :imgur-secret (or (env :imgur-secret) imgur-secret)
-   :mongodb-uri (url/url-decode (env :mongodb-uri ""))
+   :mongodb-uri (url/url-decode (or mongo-uri (env :mongodb-uri "")))
    :masterkey (env :masterkey)
    :goog-api (env :goog-api)})

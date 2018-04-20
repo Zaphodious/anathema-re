@@ -48,6 +48,14 @@
 
 (defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth imgur]
                                                     :as opts}]
+
+  ;(doall
+  ;  (map (fn [a] (put-thing! [:character a :player] "106295716847506101421"))
+  ;       ["963963963" "7777777777" "789789789" "424242"]))
+  ;(doall
+  ;  (map (fn [a] (put-thing! [:rulebook a :player] "106295716847506101421"))
+  ;       ["452452452" "242424" "852852852" "01010101" "0" "1"]))
+
   (routes
     (GET "/api/player/me.:file-ext" [file-ext :as {:keys [headers]}]
       (let [dest-format (if file-ext
