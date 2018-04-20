@@ -50,6 +50,11 @@
   (println "google auth is " (goog-oauth token))
   (:user-id (goog-oauth token)))
 
+(defn proper-hash [thing-string]
+  (str (.hashCode
+         (if (string? thing-string)
+           thing-string
+           (pr-str thing-string)))))
 
 (defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth imgur]
                                                     :as opts}]
@@ -86,37 +91,54 @@
              :body   write-result})
           {:status 403
            :body "NOT AUTHORIZED!"})))
-    (GET "/api/player/me.:file-ext" [file-ext :as {:keys [headers]}]
+    (GET "/api/player/me.:file-ext" [file-ext got-hash :as {:keys [headers]}]
       (let [dest-format (if file-ext
                           (keyword file-ext)
-                          :transit)]
+                          :transit)
+            me-string (data/write-data-as (handle-player-me-data opts headers)
+                                          dest-format)
+            me-hash (proper-hash me-string)
+            same-thing? (= got-hash me-hash)]
         ;(println "header is " headers)
-        {:status  200
-         :headers {"Content-Type"  (data/content-type-for dest-format)
-                   "Cache-Control" "no-cache, no-store, must-revalidate"}
-         :body    (data/write-data-as (handle-player-me-data opts headers)
-                                      dest-format)}))
+        (if same-thing?
+          {:status 304
+           :body ""}
+          {:status  200
+           :headers {"Content-Type"  (data/content-type-for dest-format)
+                     "Cache-Control" "no-cache, no-store, must-revalidate"
+                     "hash" me-hash}
+           :body me-string})))
     (GET "/api/player/me/*.:file-ext" []
       {:status 418
        :body "Please use player id directly."})
     (GET "/api/*.:file-ext"
-         [file-ext full :as
+         [file-ext full got-hash :as
           {:keys [uri headers query-string]
            :as request}]
       (println "file ext is " file-ext)
       (println "full is " full)
+      (println "requested hash is " got-hash)
       (println "query is " (pr-str query-string))
       (let [path (data/get-path-from-uri uri)
             dest-format (if file-ext
                           (keyword file-ext)
-                          :transit)]
-        {:status  200
-         :headers {"Content-Type" (data/content-type-for dest-format)
-                   "Cache-Control" "no-cache, no-store, must-revalidate"}
-         :body    (data/write-data-as (if (= :player (first path))
-                                        (get-full-player-data path get-thing full)
-                                        (get-thing path))
-                                      dest-format)}))
+                          :transit)
+            dest-thing (data/write-data-as (if (= :player (first path))
+                                             (get-full-player-data path get-thing full)
+                                             (get-thing path))
+                                           dest-format)
+            dest-hash (proper-hash dest-thing)
+            same-thing? (= got-hash dest-hash)]
+        (println "Same thing? " same-thing?"! dest-hash is " (pr-str dest-hash)
+                 " and got-hash is " (pr-str got-hash))
+        (if same-thing?
+          {:status 304
+           :body ""}
+          {:status  200
+           :headers {"Content-Type" (data/content-type-for dest-format)
+                     "Cache-Control" "no-cache, no-store, must-revalidate"
+                     "hash" dest-hash}
+           :body dest-thing})))
     (GET "/api/*" {:keys [uri]}
       {:status 308
        :headers {"Location" (-> uri (data/get-path-from-uri) (data/get-api-uri-from-path :transit))}})))

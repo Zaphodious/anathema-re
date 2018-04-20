@@ -169,7 +169,8 @@
         new-entity (if entity-path
                      (assoc-in entity entity-path put-value)
                      put-value)
-        put-result (-write-db-object- db new-entity)]))
+        put-result (-write-db-object- db new-entity)]
+    put-result))
 
 (defmethod ig/init-key ::connection [_ {:keys [environ] :as opts}]
   (let [db-uri (:mongodb-uri environ)

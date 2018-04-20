@@ -13,10 +13,9 @@
   (dl/init-app-state
     #(rum/mount (ui/app-core {:path                  path
                               :get-thing             dl/get-under-path
-                              :put-thing!            (fn [a] a)
+                              :put-thing!            dl/put-under-path-and-mark-changed!
                               :reactive-atom         dl/page-temp-state
                               :current-user-atom     dl/auth-cache
-                              :user-info-get         dl/put-under-path-and-mark-changed!
                               :auth-response-handler aaf/transform-auth-response
                               :api-key               js/sitekey})
                 (.getElementById js/document "appmount"))

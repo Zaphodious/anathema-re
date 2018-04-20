@@ -6,14 +6,21 @@
             [alandipert.storage-atom :as statom]))
 
 (def page-temp-state
-  (atom {:character {}
-         :rulebook {}
-         :player {}
-         :current-player nil}))
+  (statom/local-storage
+    (atom {:character {}
+           :rulebook {}
+           :player {}
+           :current-player nil
+           :change-thing (rand)})
+    :app-state))
 
 (def auth-cache
-  (statom/session-storage (atom {})
-                          :g-auth))
+  (statom/local-storage (atom {})
+                        :g-auth))
+
+(def path-hashes
+  (statom/local-storage (atom {})
+                        :path-hashes))
 
 (def changes-since-last-push (atom []))
 
@@ -53,6 +60,7 @@
           (map add-entity)))))
 
 (defn put-under-path! [path thing]
+  (println "Putting " thing " under " path)
   (async/go
     (sp/transform [sp/ATOM (apply sp/keypath path)]
                   (constantly thing)
@@ -104,17 +112,33 @@
 
 (defn sync-path-from-server [path]
   (let [promise-ch (async/promise-chan)
-        mod-path (make-mod-path path)]
+        mod-path (make-mod-path path)
+        current-thing-hash (sp/select-first [sp/ATOM (sp/keypath mod-path)] path-hashes)] ;Without applying, keypath of a path is that path as the key
     ;(println "Getting the thing for path " mod-path)
     (async/go
-      (-> (.fetch js/window (data/get-api-uri-from-path path) (make-request-headers))
+      (-> (.fetch js/window (str (data/get-api-uri-from-path path) "?got-hash=" current-thing-hash)
+                  (make-request-headers))
+          (.then (fn [a] (if (= (.-status a)
+                                304)
+                           (throw (js/Error. "Resource not changed"))
+                           a)))
+          (.then (fn [a] (if (.-ok a)
+                           a
+                           (throw (js/Error. (str "Something went wrong. HTTP status was " (.status a)))))))
+          (.then (fn [a] (do (sp/transform [sp/ATOM (sp/keypath mod-path)]
+                               (constantly (js->clj (.get (.-headers a) "hash")))
+                               path-hashes)
+                           a)))
           (.then (fn [a] (.text a)))
           (.then (fn [a] (transit/read (transit/reader :json) a)))
           (.then (fn [a] (println "null thing is " a) a))
           (.then (fn [a] (if a a "")))
           (.then (fn [a] (load-cache-with! :character a sync-path-from-server)))
           (.then (fn [a] (load-cache-with! :rulebook a sync-path-from-server)))
-          (.then (fn [a] (async/put! promise-ch (put-under-path! mod-path a))))))
+          (.then (fn [a] (async/put! promise-ch (put-under-path! mod-path a))))
+          (.catch (fn [a] (do (println "Error on sync - " a)
+                              false)))
+          (.then (fn [a] (async/put! promise-ch a)))))
     promise-ch))
 
 (defn auth-cache-to-temp-state! []

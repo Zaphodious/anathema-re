@@ -7,6 +7,9 @@
 (defmulti modal-for :modal-showing)
 (defmethod modal-for nil [_] nil)
 
+(defn decode-js-change-event [e]
+  (.. e -target -value))
+
 (rum/defc page-of < rum/static
     [{:keys [title subtitle header-content img class sections path]}])
 
@@ -34,6 +37,7 @@
     [:input.field {:type  :text, :value value, :id (pr-str path)
                    :key   (pr-str path)
                    :class (str class (when (not owner?) " read-only"))
+                   :on-change #(put-thing! path (decode-js-change-event %))
                    :readOnly (not owner?)}]
     [:span.input-readonly.readonly {:class class} value]))
 (defmethod form-field-for :text [n] (text-field n))

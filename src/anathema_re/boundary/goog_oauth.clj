@@ -39,7 +39,7 @@
      :given-name (.get payload "given_name")
      :valid-from valid-from
      :valid-until valid-until
-     :valid-for (- valid-until the-now)
+     ;:valid-for (- valid-until the-now)
      :token token}))
      ;:string (.toString goog-resp)}))
 
