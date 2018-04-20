@@ -38,7 +38,8 @@
         [:#goog-user
          (if (not (empty? current-user))
            [:.user-button
-            [:img {:src (:img current-user)}]]
+            [:a {:href "/player/me"}
+             [:img {:src (:img current-user)}]]]
            (gapi/signin-button :client-id api-key
                 :on-success (fn [google-user]
                               (auth-response-handler (.getAuthResponse google-user)))
@@ -102,6 +103,6 @@
 (defmethod page-for :character
   [optmap] (character-page optmap))
 (defmethod page-for :player
-  [optmap] (player-page optmap))
+  [optmap] (auid/profile-page optmap))
 (defmethod page-for :rulebook
   [optmap] (rulebook-page optmap))

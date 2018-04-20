@@ -49,12 +49,29 @@
                                       :msgpack))
                     thing)))
 
+(defn from-transit [thing json? verbose?]
+  #?(:clj (let [in (if json?
+                     (.getBytes thing)
+                     thing)
+                reader (transit/reader in (if json?
+                                            (if verbose? :json-verbose :json)
+                                            :msgpack))]
+            (prn (transit/read reader)))))
+
 (defn write-data-as [thing format]
   (case format
     :edn (pr-str thing)
     :json (to-transit thing true true)
     :transit (to-transit thing true false)
     :msgpack (to-transit thing false false)))
+
+(defn read-data-as [thing format imgur]
+  (case format
+    :edn thing
+    :json (from-transit thing true true)
+    :transit (from-transit thing true false)
+    :msgpack (from-transit thing false false)
+    :img (:link (imgur thing))))
 
 (defn content-type-for [format]
   (case (keyword (name format))
@@ -107,3 +124,7 @@
                      (reduce str)
                      (str "/api"))
                    (str "." (name format)))))
+
+(defn is-owner? [player-id path get-thing]
+  (let [get-the-key (fn [a] (-> (take 2 path) (vec) (conj a) (get-thing) (= player-id)))]
+    (or (get-the-key :key) (get-the-key :player) (get-the-key :owner))))

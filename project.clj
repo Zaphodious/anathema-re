@@ -24,6 +24,8 @@
                  [com.fasterxml.jackson.core/jackson-core "2.9.5"] ;Repl crashes without it. 🤷
                  [bk/ring-gzip "0.3.0"]
                  [alandipert/storage-atom "2.0.1"]
+                 [org.clojure/data.codec "0.1.1"]
+                 [cheshire "5.8.0"]
                  [com.google.api-client/google-api-client "1.23.0" :exclusions [com.google.guava/guava-jdk5]]]
   :plugins [[duct/lein-duct "0.10.6"]
             [lein-environ "1.1.0"]]

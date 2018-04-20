@@ -1,14 +1,21 @@
 {:duct.core/project-ns          anathema-re
  :duct.core/environment         :production
 
- :duct.server.http/http-kit {:handler #ig/ref :anathema-re.middleware/gzip
+ :duct.server.http/http-kit {:handler #ig/ref :duct.core/handler
                              :logger #ig/ref :duct/logger}
 
+ :duct.core/handler {:middleware [#ig/ref :duct.middleware.web/not-found
+                                  #ig/ref :duct.middleware.web/webjars
+                                  #ig/ref :duct.middleware.web/defaults
+                                  #ig/ref :anathema-re.middleware/gzip]}
+                                  ;#ig/ref :anathema-re.middleware/file]}
  :duct.module/logging           {}
  :duct.module.web/site          {}
+ :duct.middleware.web/defaults {:security {:anti-forgery false}}
  :duct.module/cljs              {:main anathema-re.client}
 
- :anathema-re.middleware/gzip {:handler #ig/ref :duct.core/handler}
+ :anathema-re.middleware/gzip {}
+ :anathema-re.middleware/file {}
 
  :duct.router/cascading
                                 [#ig/ref :anathema-re.handler/js
@@ -19,6 +26,7 @@
 
  :anathema-re.boundary/environ  {}
  :anathema-re.boundary/goog-oauth {:environ #ig/ref :anathema-re.boundary/environ}
+ :anathema-re.boundary/imgur {:environ #ig/ref :anathema-re.boundary/environ}
 
  :anathema-re.boundary.mongo/connection    {:environ #ig/ref :anathema-re.boundary/environ}
  :anathema-re.boundary/get      {:mongo #ig/ref :anathema-re.boundary.mongo/connection}
@@ -31,5 +39,6 @@
  :anathema-re.handler/js {}
  :anathema-re.handler/api {:get-thing #ig/ref :anathema-re.boundary/get
                            :put-thing! #ig/ref :anathema-re.boundary/put
+                           :imgur #ig/ref :anathema-re.boundary/imgur
                            :goog-oauth #ig/ref :anathema-re.boundary/goog-oauth}
  :anathema-re.handler/resources {}}

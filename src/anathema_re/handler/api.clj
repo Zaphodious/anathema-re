@@ -4,7 +4,10 @@
             [clojure.string :as str]
             [anathema-re.data :as data]
             [clojure.core.async :as async]
-            [clojure.set :as set]))
+            [ring.middleware.gzip :as rg]
+            [clojure.set :as set]
+            [clojure.java.io :as io])
+  (:import (java.io InputStream)))
 
 (defn fill-vec-of [vec-of category-key get-thing]
   (->> vec-of
@@ -39,11 +42,11 @@
     (async/go (put-thing! player-path new-player))
     new-player))
 
+(defn id-for [{:keys [goog-oauth] :as opts} {:strs [token] :as headers}]
+  (:user-id (goog-oauth token)))
 
 
-
-
-(defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth]
+(defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth imgur]
                                                     :as opts}]
   (routes
     (GET "/api/player/me.:file-ext" [file-ext :as {:keys [headers]}]
@@ -56,6 +59,18 @@
                    "Cache-Control" "no-cache, no-store, must-revalidate"}
          :body    (data/write-data-as (handle-player-me-data opts headers)
                                       dest-format)}))
+    (PUT "/api/*.:file-ext"  [file-ext full :as
+                               {:keys [uri headers query-string body]
+                                {:strs [file]} :params
+                                :as request}]
+      (let [path (data/get-path-from-uri uri)
+            dest-format (if file-ext
+                          (keyword file-ext)
+                          :transit)
+            read-in-content (data/read-data-as body dest-format imgur)]
+
+        {:status 200
+         :body   read-in-content}))
 
     (GET "/api/*.:file-ext"
          [file-ext full :as

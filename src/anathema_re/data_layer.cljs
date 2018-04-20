@@ -110,6 +110,8 @@
       (-> (.fetch js/window (data/get-api-uri-from-path path) (make-request-headers))
           (.then (fn [a] (.text a)))
           (.then (fn [a] (transit/read (transit/reader :json) a)))
+          (.then (fn [a] (println "null thing is " a) a))
+          (.then (fn [a] (if a a "")))
           (.then (fn [a] (load-cache-with! :character a sync-path-from-server)))
           (.then (fn [a] (load-cache-with! :rulebook a sync-path-from-server)))
           (.then (fn [a] (async/put! promise-ch (put-under-path! mod-path a))))))

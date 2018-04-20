@@ -324,7 +324,8 @@ title-bg-color
    [:.form-of {:padding-right :10px
                :padding-left :10px
                :padding-top :5px}
-    [:.form-row {:height :1.3em}
+    [:.form-row {:height :1.3em
+                 :margin-bottom :1px}
      [:.readonly {}
       [:&:before {:content "\" |  \""}]];:border-bottom "solid 1px black"}]
      [:label {:display :inline-block
@@ -338,16 +339,18 @@ title-bg-color
                               :box-shadow       inputshadow
                               ;:border-bottom    :solid
                               ;:border-style :double
+                              :border-left      :solid
                               :border           :none
                               :border-width     :1px
                               :border-color     :grey
-                              :border-left      :none
                               :border-right     :none
                               :border-top       :none
                               :height           (-% 75)
-                              :margin-bottom    (-px 3)
+                              :margin-bottom    (-px -1)
+                              :margin-top    (-px 2)
                               :margin-left      (-px -5)
-                              :padding          :5px
+                              :padding          :2px
+                              ;:padding-bottom :2px
                               :padding-right    0
                               :vertical-align   :bottom}
     ;:margin-left (-px 3)}
