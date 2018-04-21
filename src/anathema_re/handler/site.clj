@@ -37,7 +37,8 @@
                   (#'style/compile-style)})
       (GET "/" []
         (page-make [:home]))
-
+      (GET "/shell.html" []
+        (page-make [:shell]))
       (GET "/oauth" [])
       (GET "/sitekey.js" []
         {:status 200

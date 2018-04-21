@@ -83,6 +83,9 @@
    [:img {:src "/img/gilted-logo.jpg"}]
    [:.navbutton "Characters"]])
 
+(rum/defc shell-page [{:keys [path get-thing put-thing!]}]
+  [:.interior "Content Loading..."])
+
 (rum/defc character-page [{:keys [path get-thing put-thing!]}]
   [:.interior
    [:p (str "thing is at " path " that can be gotten with " get-thing)]])
@@ -100,6 +103,8 @@
   [optmap] (root-page optmap))
 (defmethod page-for :home
   [optmap] (root-page optmap))
+(defmethod page-for :shell
+  [optmap] (shell-page optmap))
 (defmethod page-for :character
   [optmap] (character-page optmap))
 (defmethod page-for :player
