@@ -50,11 +50,11 @@
 
 (defn- <load-script [url]
   (a/go (let [s (dom/createElement "script")]
-          (oset! [s "src"] url)
+          (oset! s "src" url)
           ;(oset! :src s url)
-          (let [loaded (<cb (fn [cb] (oset! [:onload s]
+          (let [loaded (<cb (fn [cb] (oset! s :onload
                                            cb)))]
-            (ocall [js/document "body" :appendChild] s)
+            (ocall+ [js/document "body" :appendChild] s)
             (a/<! loaded)))))
 
 (defn- <init-gapi!
