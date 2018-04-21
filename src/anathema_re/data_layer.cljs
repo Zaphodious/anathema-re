@@ -168,6 +168,8 @@
         sync-path-from-server
         starting-page-gets)))
   (async/go (auth-cache-to-temp-state!))
+  (async/go (js/setInterval (fn [] (println "thing happening now"))
+                            100000))
   (async/go
     (let [_ (async/<! (sync-path-from-server page-path))]
       (mounting-callback))))

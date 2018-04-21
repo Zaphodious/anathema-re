@@ -12,7 +12,8 @@
  :duct.module/logging           {}
  :duct.module.web/site          {}
  :duct.middleware.web/defaults {:security {:anti-forgery false}}
- :duct.module/cljs              {:main anathema-re.client}
+ :duct.module/cljs              {:main anathema-re.client
+                                 :sw-main anathema-re.sw}
 
  :anathema-re.middleware/gzip {}
  :anathema-re.middleware/file {}

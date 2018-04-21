@@ -3,9 +3,12 @@
             [rum.core :as rum]
             [anathema-re.data :as data]
             [anathema-re.data-layer :as dl]
-            [anathema-re.auth-flow :as aaf]))
+            [anathema-re.auth-flow :as aaf]
+            [hireling.core :as hireling]))
 
 (js/console.log "Does this reload?")
+
+(hireling/register-service-worker "/sw.js")
 
 (defn init-client [path]
   (set! (.-onGoogleYoloLoad js/window)
