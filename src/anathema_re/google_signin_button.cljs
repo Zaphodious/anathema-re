@@ -45,14 +45,16 @@
 (defn- get-dom-node
   "Get a rum component dom element"
   [state]
-  (-> state :rum/react-component js/ReactDOM.findDOMNode))
+  (-> state :rum/react-component
+      (oget js/window "ReactDOM" "findDOMNode")))
 
 (defn- <load-script [url]
   (a/go (let [s (dom/createElement "script")]
-          (oset! s "src" url)
-          (set! (.-src s) url)
-          (let [loaded (<cb (fn [cb] (set! (.-onload s) cb)))]
-            (.appendChild (.-body js/document) s)
+          (oset! [s "src"] url)
+          ;(oset! :src s url)
+          (let [loaded (<cb (fn [cb] (oset! [:onload s]
+                                           cb)))]
+            (ocall [js/document "body" :appendChild] s)
             (a/<! loaded)))))
 
 (defn- <init-gapi!
