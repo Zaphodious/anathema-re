@@ -5,12 +5,7 @@
 (ns anathema-re.google-signin-button
   (:require [cljs.core.async :as a]
             [rum.core :as r]
-            [goog.dom :as dom]
-            [oops.core :refer [oget oset! ocall oapply ocall! oapply!
-                               oget+ oset!+ ocall+ oapply+ ocall!+ oapply!+
-                               gget gset! gcall gapply gcall! gapply!
-                               gget+ gset!+ gcall+ gapply+ gcall!+ gapply!+]]))
-
+            [goog.dom :as dom]))
 
 (defn- <cb
   "Call an callback style function and return a channel containing the result of calling the callback"
@@ -32,29 +27,25 @@
 (defn- render-signin-button
   "Get gapi to render sign-in button within the provided container element"
   [el & {:keys [on-success on-failure]}]
-  (ocall js/window ["gapi" "signin2" "render"]
-         el
-         #js {"scope"     "profile email"
-              "width"     120
-              "height"    40
-              "longtitle" false
-              "theme"     "light"
-              "onsuccess" on-success
-              "onfailure" on-failure}))
+  (js/gapi.signin2.render el
+                          #js {"scope"     "profile email"
+                               "width"     120
+                               "height"    40
+                               "longtitle" false
+                               "theme"     "light"
+                               "onsuccess" on-success
+                               "onfailure" on-failure}))
 
 (defn- get-dom-node
   "Get a rum component dom element"
   [state]
-  (-> state :rum/react-component
-      (oget js/window "ReactDOM" "findDOMNode")))
+  (-> state :rum/react-component js/ReactDOM.findDOMNode))
 
 (defn- <load-script [url]
   (a/go (let [s (dom/createElement "script")]
-          (oset! s "src" url)
-          ;(oset! :src s url)
-          (let [loaded (<cb (fn [cb] (oset! s :onload
-                                           cb)))]
-            (ocall+ [js/document "body" :appendChild] s)
+          (set! (.-src s) url)
+          (let [loaded (<cb (fn [cb] (set! (.-onload s) cb)))]
+            (.appendChild (.-body js/document) s)
             (a/<! loaded)))))
 
 (defn- <init-gapi!
@@ -62,17 +53,14 @@
   [client-id]
   (assert client-id)
   (a/go
-    (a/<! (<cb (oget js/window "gapi" "load")
-               "auth2"))
-    (a/<! (<promise
-            (oget js/window "gapi" "auth2" "init")
-            #js {:client_id client-id}))))
+    (a/<! (<cb js/gapi.load "auth2"))
+    (a/<! (<promise js/gapi.auth2.init #js {:client_id client-id}))))
 
 (defn- <ensure-gapi!
   "Ensure that the gapi script is loaded and initialised"
   [client-id]
   (a/go
-    (when-not (exists? (oget js/window "?gapi"))
+    (when-not (exists? js/gapi)
       (a/<! (<load-script "https://apis.google.com/js/platform.js")))
     (a/<! (<init-gapi! client-id))))
 
@@ -91,8 +79,7 @@
 (defn <sign-out!
   "Sign user out of gapi session"
   []
-  (<promise
-    #(ocall js/window "gapi" "auth2" "getAuthInstance" "signOut")))
+  (<promise #(.signOut (js/gapi.auth2.getAuthInstance))))
 
 (r/defc signin-button < button [& {:keys [client-id on-success on-failure]}]
   [:.google-button])
