@@ -70,7 +70,7 @@
   "Ensure that the gapi script is loaded and initialised"
   [client-id]
   (a/go
-    (when-not (exists? js/gapi)
+    (when-not (exists? (oget js/window "?gapi"))
       (a/<! (<load-script "https://apis.google.com/js/platform.js")))
     (a/<! (<init-gapi! client-id))))
 
