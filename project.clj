@@ -21,6 +21,7 @@
                  [com.novemberain/monger "3.1.0"]
                  [com.cemerick/url "0.1.1"]
                  [jstrutz/hashids "1.0.1"]
+                 [binaryage/oops "0.6.1"]
                  [com.tristanstraub/cljs-google-signin "0.1.0-SNAPSHOT"]
                  [com.fasterxml.jackson.core/jackson-core "2.9.5"] ;Repl crashes without it. 🤷
                  [bk/ring-gzip "0.3.0"]
