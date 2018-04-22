@@ -10,7 +10,7 @@
     (atom {:character {}
            :rulebook {}
            :player {}
-           :current-player nil
+           :player-me nil
            :change-thing (rand)})
     :app-state))
 
@@ -26,7 +26,7 @@
 
 (defn make-mod-path [path]
    (if (= "me" (second path))
-     (-> path vec (assoc 1 (or (:current-player @page-temp-state) "010101")))
+     (-> path vec (assoc 1 (or (:player-me @page-temp-state) "010101")))
      path))
 
 (defn make-request-headers []
@@ -146,7 +146,7 @@
     (when (not (empty? auth))
       (do
         ;(println "syncing this all up and down!")
-        (sp/transform [sp/ATOM :current-player] (constantly (:key auth))
+        (sp/transform [sp/ATOM :player-me] (constantly (:key auth))
                       page-temp-state)
         (sync-path-from-server [:player "me"])))))
 
@@ -190,8 +190,8 @@
 
 (defn handle-credential [{:keys [idToken] :as credential}]
   (println "handling credential for " (pr-str credential))
-  (println "credential swapped result: "(swap! page-temp-state (fn [a] (assoc a :current-player idToken)))))
-;(sp/transform [(sp/keypath :current-player)] (constantly idToken) page-temp-state))
+  (println "credential swapped result: "(swap! page-temp-state (fn [a] (assoc a :player-me idToken)))))
+;(sp/transform [(sp/keypath :player-me)] (constantly idToken) page-temp-state))
 
 (defn ^:export debug-print-state []
   (println "page-temp-state: " page-temp-state)

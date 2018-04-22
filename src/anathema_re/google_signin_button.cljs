@@ -5,7 +5,9 @@
 (ns anathema-re.google-signin-button
   (:require [cljs.core.async :as a]
             [rum.core :as r]
-            [goog.dom :as dom]))
+            [goog.dom :as dom]
+            [oops.core :refer [oget oset! ocall oapply ocall! oapply!
+                               oget+ oset!+ ocall+ oapply+ ocall!+ oapply!+]]))
 
 (defn- <cb
   "Call an callback style function and return a channel containing the result of calling the callback"
@@ -27,14 +29,14 @@
 (defn- render-signin-button
   "Get gapi to render sign-in button within the provided container element"
   [el & {:keys [on-success on-failure]}]
-  (js/gapi.signin2.render el
-                          #js {"scope"     "profile email"
-                               "width"     120
-                               "height"    40
-                               "longtitle" false
-                               "theme"     "light"
-                               "onsuccess" on-success
-                               "onfailure" on-failure}))
+  (ocall js/window [:gapi :signin2 :render] el
+         #js {"scope"     "profile email"
+              "width"     120
+              "height"    40
+              "longtitle" false
+              "theme"     "light"
+              "onsuccess" on-success
+              "onfailure" on-failure}))
 
 (defn- get-dom-node
   "Get a rum component dom element"
@@ -43,7 +45,7 @@
 
 (defn- <load-script [url]
   (a/go (let [s (dom/createElement "script")]
-          (set! (.-src s) url)
+          (oset s [:src] url)
           (let [loaded (<cb (fn [cb] (set! (.-onload s) cb)))]
             (.appendChild (.-body js/document) s)
             (a/<! loaded)))))
