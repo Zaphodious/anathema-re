@@ -5,7 +5,6 @@
             [clojure.java.io :as io]
             [integrant.core :as ig]
             [anathema-re.ui :as ui]
-            [anathema-re.style :as style]
             [rum.core :as rum]
             [ring.middleware.gzip :as gz]
             [anathema-re.data :as data]
@@ -30,11 +29,11 @@
 (defmethod ig/init-key :anathema-re.handler/site [_ {:keys [js get-thing put-thing! environ] :as options}]
   (let [page-make (partial make-page-response get-thing put-thing! environ (fn [a] nil))]
     (routes
-      (GET "/style/main.css" []
-        {:status  200
-         :headers {"Content-Type" "text/css"}
-         :body
-                  (#'style/compile-style)})
+      ;(GET "/style/main.css" []
+      ;  {:status  200
+      ;   :headers {"Content-Type" "text/css"}
+      ;   :body
+      ;            (#'style/compile-style)})
       (GET "/" []
         (page-make [:home]))
       (GET "/shell.html" []
