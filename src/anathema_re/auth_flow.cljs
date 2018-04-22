@@ -4,7 +4,9 @@
             [anathema-re.data :as data]
             [anathema-re.data-layer :as dl]
             [clojure.core.async :as async]
-            [cognitect.transit :as transit]))
+            [cognitect.transit :as transit]
+            [oops.core :refer [oget oset! ocall oapply ocall! oapply!
+                               oget+ oset!+ ocall+ oapply+ ocall!+ oapply!+]]))
 
 (def auth-opts-map {:supportedAuthMethods      ["https://accounts.google.com"]
                     :supportedIdTokenProviders [{:uri      "https://accounts.google.com"
@@ -13,7 +15,7 @@
 (defn retrieve [g-yolo]
   ;(println "Starting YOLO Service")
   (let [return-chan (async/promise-chan)
-        retrieve-promise (.retrieve g-yolo (clj->js auth-opts-map))]
+        retrieve-promise (ocall g-yolo [:retrieve] (clj->js auth-opts-map))]
     ;(println "retrieving!")
     (-> retrieve-promise
         ;(.catch (fn [a] (println "sign-in failed, " a) a))
@@ -29,7 +31,8 @@
                  (fn [result]
                    (if result
                      (async/put! return-chan result)
-                     (-> g-yolo (.hint (clj->js (assoc auth-opts-map :context "signUp")))
+                     (-> g-yolo
+                         (ocall [:hint] (clj->js (assoc auth-opts-map :context "signUp")))
                          (.then #(async/put! return-chan %)
                                 #(async/put! return-chan false))))))
     return-chan))
