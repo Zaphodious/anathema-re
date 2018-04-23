@@ -3,7 +3,21 @@
             [anathema-re.data :as data]
             [cognitect.transit :as transit]
             [com.rpl.specter :as sp]
-            [alandipert.storage-atom :as statom]))
+            [alandipert.storage-atom :as statom]
+            [clojure.set :as set]))
+
+(comment
+  "This namespace contains all the code concerned with IO with the anathema server.
+
+  When the page starts, or when a refresh is requested, sync-path-from-server! is called.
+  When the server must be updated, update-server! is called. When the user changes
+  the state of the program through the UI, the path for the change is stored in
+  changes-since-last-push and changes-made-recently is set to :changed. The updater
+  checks changes-made-recently, if it sees that changes-made-recently is :changed it is
+  changed to :staging, and if its :staging it kicks off the sync handler, unless changes-since-last-push
+  is empty in which case it sets changes-made-recently to :synced. ")
+
+(def seconds-between-sync 10)
 
 (def page-temp-state
   (statom/local-storage
@@ -22,19 +36,53 @@
   (statom/local-storage (atom {})
                         :path-hashes))
 
-(def changes-since-last-push (atom []))
+(def changes-since-last-push
+  (statom/local-storage (atom #{})
+                        :last-changes))
+
+(def changes-made-recently
+  (statom/local-storage (atom :synced)
+                        :changed-recently?)) ;:staging :changed
+;(add-watch changes-since-last-push
+;           :change-marker
+;           (fn [the-key the-atom old-state new-state]
+;             (let [change-time (.getTime (js/Date.))]
+;               ;(.warn js/console "Made change to state at " change-time)
+;               (reset! changes-made-recently :changed))))
+
+(defn can-server-sync? []
+  ;(println "Currently, " changes-made-recently)
+  (case @changes-made-recently
+    :synced false
+    :staging (do
+               (if (empty? @changes-since-last-push)
+                 (do
+                   (reset! changes-made-recently :synced)
+                   false)
+                 true))
+    :changed (do
+               (reset! changes-made-recently :staging)
+               false)))
 
 (defn make-mod-path [path]
    (if (= "me" (second path))
      (-> path vec (assoc 1 (or (:player-me @page-temp-state) "010101")))
      path))
 
-(defn make-request-headers []
-  (let [token (:token @auth-cache)]
-    (clj->js {:headers
+(defn register-path-as-changed! [path]
+  (let [mod-path (make-mod-path path)]
+    (reset! changes-made-recently :changed)
+    (swap! changes-since-last-push (fn [a] (conj a mod-path)))))
+
+(defn make-request-headers
+  ([] (make-request-headers {}))
+  ([m] (let [token (:token @auth-cache)]
+         (clj->js
+           (merge m
+             {:headers
               (if token
                 {:token token}
-                {})})))
+                {})})))))
 
 (def goog-key-atom (atom ""))
 
@@ -62,13 +110,13 @@
 (defn put-under-path! [path thing]
   (println "Putting " thing " under " path)
   (async/go
-    (sp/transform [sp/ATOM (apply sp/keypath path)]
+    (sp/transform [sp/ATOM (apply sp/keypath (make-mod-path path))]
                   (constantly thing)
                   page-temp-state)))
 
 (defn put-under-path-and-mark-changed! [path thing]
   (async/take! (put-under-path! path thing)
-               (fn [_] (swap! changes-since-last-push (fn [a] (conj a path))))))
+               (fn [_] (register-path-as-changed! path))))
 
 (defn add-entity-to-page-state! [{:keys [category key]
                                   :as entity}]
@@ -161,18 +209,6 @@
         (.then #(print-pass %))
         (.then #(reset! goog-key-atom %)))))
 
-(defn init-app-state [mounting-callback page-path]
-  (async/go
-    (doall
-      (map
-        sync-path-from-server
-        starting-page-gets)))
-  (async/go (auth-cache-to-temp-state!))
-  (async/go (js/setInterval (fn [] (println "thing happening now"))
-                            100000))
-  (async/go
-    (let [_ (async/<! (sync-path-from-server page-path))]
-      (mounting-callback))))
       ;(println "At this point, atom is " page-temp-state))))
 
 
@@ -188,11 +224,71 @@
       result
       (do (sync-path-from-server mod-path) nil))))
 
+
+(defn update-server! [success-fn fail-fn path]
+  (when path
+    (async/go
+      (let [mod-path (make-mod-path path)
+            thing-to-sync (get-under-path mod-path)
+            this-body (data/write-data-as thing-to-sync :transit)]
+        (println "Syncing " thing-to-sync " under " mod-path " as "this-body)
+        (println "Trying to sync this up- " mod-path)
+        (-> (js/fetch (str (data/get-api-uri-from-path mod-path :transit) "?got-hash=" (get @path-hashes mod-path))
+                      (make-request-headers {:method "PUT"
+                                             :body   this-body}))
+            (.then (fn [a] (if (= (.-status a)
+                                  304)
+                             (throw (js/Error. "Resource not changed"))
+                             a)))
+            (.then (fn [a] (if (.-ok a)
+                             a
+                             (throw (js/Error. (str "Something went wrong. HTTP status was " (.status a)))))))
+            (.then (fn [a] (.text a)))
+            (.then (fn [a] (transit/read (transit/reader :json) a)))
+            (.then (fn [a] (println "null thing is " a) a))
+            (.then (fn [a] (if a a "")))
+            (.then (fn [a] (map (fn [[k v]] (sp/transform [sp/ATOM (sp/keypath k)] (constantly v) path-hashes)))))
+            (.then (fn [a] (success-fn mod-path)))
+            (.catch (fn [a]
+                      (println "error is " a)
+                      (fail-fn mod-path))))))))
+
+(defn update-dirty-paths! []
+  (async/go
+    (let [success-fn (fn [a] (println "Successfully synced " a)
+                             (swap! changes-since-last-push
+                                    (fn [b]
+                                      (println "removing "a" from the sync set")
+                                      (set (remove #(= a %) b)))))
+          fail-fn (fn [path] (println "didn't sync "path", keeping it on the sync list."))
+          update-path (partial update-server! success-fn fail-fn)]
+      (println "Success fn is " success-fn)
+      (println "Fail fn is " fail-fn)
+      (println "update-path is " update-path)
+      (println "changes are " changes-since-last-push)
+      (doall
+        (map update-path (vec @changes-since-last-push))))))
+
 (defn handle-credential [{:keys [idToken] :as credential}]
   (println "handling credential for " (pr-str credential))
   (println "credential swapped result: "(swap! page-temp-state (fn [a] (assoc a :player-me idToken)))))
 ;(sp/transform [(sp/keypath :player-me)] (constantly idToken) page-temp-state))
 
+(defn init-app-state [mounting-callback page-path]
+  (async/go
+    (doall
+      (map
+        sync-path-from-server
+        starting-page-gets)))
+  (async/go (auth-cache-to-temp-state!))
+  (async/go (js/setInterval (fn [] (when (can-server-sync?)
+                                     (update-dirty-paths!)))
+                            (* 1000 seconds-between-sync)))
+  (async/go
+    (let [_ (async/<! (sync-path-from-server page-path))]
+      (mounting-callback))))
+
 (defn ^:export debug-print-state []
   (println "page-temp-state: " page-temp-state)
+  (println "changed paths are " changes-since-last-push)
   (println "key is " goog-key-atom))

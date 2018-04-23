@@ -45,7 +45,7 @@
 
 (defn- <load-script [url]
   (a/go (let [s (dom/createElement "script")]
-          (oset s [:src] url)
+          (oset! s [:src] url)
           (let [loaded (<cb (fn [cb] (set! (.-onload s) cb)))]
             (.appendChild (.-body js/document) s)
             (a/<! loaded)))))

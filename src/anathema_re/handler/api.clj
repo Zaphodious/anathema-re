@@ -7,7 +7,8 @@
             [ring.middleware.gzip :as rg]
             [clojure.set :as set]
             [clojure.java.io :as io])
-  (:import (java.io InputStream)))
+  (:import (java.io InputStream)
+           (org.apache.commons.io IOUtils)))
 
 (defn fill-vec-of [vec-of category-key get-thing]
   (->> vec-of
@@ -56,6 +57,18 @@
            thing-string
            (pr-str thing-string)))))
 
+(defn recursive-hash [orig-path get-thing hash-fn]
+  (into {}
+    (pmap (fn [a] {a (hash-fn (get-thing a))})
+          (reduce (fn [a b] (conj a (vec (conj (last a) b)))) [] orig-path))))
+  ;(loop [path orig-path
+  ;       hashes {}]
+  ;  (if (empty? path)
+  ;    hashes
+  ;    (recur (vec (drop-last path))
+  ;           (assoc hashes path (future (hash-fn (get-thing path))))))))
+
+
 (defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth imgur]
                                                     :as opts}]
 
@@ -80,15 +93,19 @@
       (let [path (data/get-path-from-uri uri)
             owner? (data/is-owner? (id-for opts headers) path get-thing)]
         (println "the logged in id is " (id-for opts headers))
+        (println "Path for this is " path)
         (if (and owner? (not (= :owner (last path))))
           (let [dest-format (if file-ext
                               (keyword file-ext)
                               :transit)
                 read-in-content (data/read-data-as body dest-format imgur)
-                write-result (put-thing! path read-in-content)]
+                write-result (put-thing! path read-in-content)
+                hashes (recursive-hash path get-thing #(.hashCode (data/write-data-as % dest-format)))
+                written-hashes (data/write-data-as hashes dest-format)]
+            (println "This is what came in - "body)
             (println "Should have written in " read-in-content ", under " path)
             {:status 200
-             :body   write-result})
+             :body written-hashes})
           {:status 403
            :body "NOT AUTHORIZED!"})))
     (GET "/api/player/me.:file-ext" [file-ext got-hash :as {:keys [headers]}]

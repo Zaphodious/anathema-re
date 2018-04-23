@@ -10,6 +10,7 @@
                 {:url "/api/rulebook/0.transit" :revision 1}
                 {:url "/" :revision 1}
                 {:url "/sitekey.js" :revision 1}
+                ;{:url "/js/main.js" :revision 1}
                 {:url "/rand/precached.txt" :revision 1}
                 {:url "/style/main.css" :revision 1}]
    :navigation-route {; URL to be called from the cache. Should be identical to one
@@ -26,4 +27,24 @@
                       :whitelist [#"/character/"
                                   #"/player/"
                                   #"/rulebook/"]}
-   :precache-routing-opts {:directoryIndex ""}})
+   :precache-routing-opts {:directoryIndex ""}
+   :cache-routes [{:strategy :cache-first
+                   :max-entries 2
+                   :max-age-seconds (* 60 60 2)
+                   :route #"/style/"
+                   :get :GET}
+                  {:strategy :stale-while-revalidate
+                   :route #"/js/"
+                   :max-entries 1000}
+                  {:strategy :network-first
+                   :route #".transit"
+                   :max-entries 15}
+                  {:strategy :cache-first
+                   :route #"/img/"
+                   :max-entries 200}
+                  {:strategy :cache-first
+                   :route #"imgur"
+                   :max-entries 200}
+                  {:strategy :cache-first
+                   :route #"/fonts/"
+                   :max-entries 10}]})

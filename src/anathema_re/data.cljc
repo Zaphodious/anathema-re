@@ -5,9 +5,12 @@
             [cognitect.transit :as transit]
             [clojure.string :as str]
             [clojure.tools.reader :as reader]
-    #?(:clj [hashids.core :as h]))
-  #?(:clj (:import [java.io ByteArrayOutputStream]
-                   [org.apache.commons.io IOUtils])))
+    #?(:clj [hashids.core :as h])
+    #?(:clj [clojure.java.io :as io]))
+  #?(:clj
+     (:import [java.io ByteArrayOutputStream]
+              [org.apache.commons.io IOUtils]
+              [org.httpkit BytesInputStream])))
 
 (s/def ::id (s/and string? #(not (empty? %))))
 
@@ -57,7 +60,7 @@
               reader (transit/reader in (if json?
                                           (if verbose? :json-verbose :json)
                                           :msgpack))]
-          (prn (transit/read reader)))))
+          (transit/read reader))))
 
 (defn write-data-as [thing format]
   (case format
