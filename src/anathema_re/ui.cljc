@@ -100,9 +100,9 @@
     [:.interior (auid/player-profile-page opts)]))
 
 (defmethod page-for nil
-  [optmap] (root-page optmap))
+  [optmap] (character-page optmap))
 (defmethod page-for :home
-  [optmap] (root-page optmap))
+  [optmap] (character-page optmap))
 (defmethod page-for :shell
   [optmap] (shell-page optmap))
 (defmethod page-for :character

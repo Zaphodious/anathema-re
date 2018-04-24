@@ -14,7 +14,7 @@
   (set! (.-onGoogleYoloLoad js/window)
         (fn [a] (aaf/init-auth a)))
   (dl/init-app-state
-    #(rum/mount (ui/app-core {:path                  path
+    #(rum/mount (ui/app-core {:path                  (if (empty? path) [:player :me] path)
                               :get-thing             dl/get-under-path
                               :put-thing!            dl/put-under-path-and-mark-changed!
                               :put-image!            dl/put-image-under-path!
@@ -24,5 +24,5 @@
                               :api-key               js/sitekey})
                 (.getElementById js/document "appmount"))
     path))
-
-(init-client (data/get-path-from-uri (.. js/window -location -pathname)))
+(def pathname (.. js/window -location -pathname))
+(init-client (data/get-path-from-uri (if (= "/" pathname) "/player/me" pathname)))
