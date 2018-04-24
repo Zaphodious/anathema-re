@@ -28,3 +28,8 @@
   (load "local"))
 
 (integrant.repl/set-prep! (comp duct/prep read-config))
+
+(defn backup-db []
+  (anathema-re.boundary.mongo/backup-dev-db! (:db (:anathema-re.boundary.mongo/connection system))))
+(defn restore-db []
+  (anathema-re.boundary.mongo/restore-dev-db! (:db (:anathema-re.boundary.mongo/connection system))))
