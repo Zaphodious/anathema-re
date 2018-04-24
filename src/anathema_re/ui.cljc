@@ -39,7 +39,7 @@
          (if (not (empty? current-user))
            [:.user-button
             [:a {:href (data/get-navigation-uri-from-path [:player :me])}
-             [:img {:src (data/modify-imgur-url (get-thing [:player (:key current-user) :img]) :small-square)}]]]
+             [:img {:src (data/modify-imgur-url (get-thing [:player (:key current-user) :img]) :big-square)}]]]
            (gapi/signin-button :client-id api-key
                 :on-success (fn [google-user]
                               (auth-response-handler (.getAuthResponse google-user)))

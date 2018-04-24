@@ -153,12 +153,14 @@
    :huge-thumbnail "h"})
 
 (defn modify-imgur-url [imgur-url thumb-type]
-  (println "url is " imgur-url)
-  (if (re-matches #".*i.imgur.*" imgur-url)
-    (let [[pre :as imgur-split] (str/split imgur-url #".png|.jpg|.gif|.gifv")
-          thumb-suffix (get imgur-thumb-types thumb-type)
-          mod-url (str pre thumb-suffix ".png")]
-      (println "new image is " mod-url)
-      mod-url)
+  (if (and imgur-url thumb-type)
+    (do
+      (println "url is " imgur-url)
+      (if (re-matches #".*i.imgur.*" imgur-url)
+        (let [[pre :as imgur-split] (str/split imgur-url #".png|.jpg|.gif|.gifv")
+              thumb-suffix (get imgur-thumb-types thumb-type)
+              mod-url (str pre thumb-suffix ".png")]
+          (println "new image is " mod-url)
+          mod-url)))
 
     imgur-url))

@@ -84,6 +84,8 @@
       (println "Character vec is " character)
       (println "key is " key "and current player is " current-player-id", so owner is " owner?)
       [:.interior
+       [:.section
+        [:img.profile-banner {:src (data/modify-imgur-url img :huge-thumbnail)}]]
        [:.section [:h3 "Profile Information"]
         (form-seq
           (assoc opts :owner? owner?)

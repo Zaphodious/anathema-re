@@ -163,6 +163,11 @@ h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
   margin-bottom: 10px;
 }
 
+#app-frame #content .page .section img.profile-banner {
+  width: 100%;
+  height: auto;
+}
+
 #app-frame #content .page .section h3 {
   background-position: bottom, center;
   top: 50px;

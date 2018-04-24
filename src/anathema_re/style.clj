@@ -301,6 +301,8 @@ title-bg-color
                   :z-index          10
                   :padding-top      0
                   :margin-bottom    :10px}
+       [:img.profile-banner {:width :100%
+                             :height :auto}]
        [:h3 {:background-image    (url "/img/gold_back.jpg")
              :font-size           :27px
              :background-position [:bottom :center]
