@@ -296,3 +296,20 @@
 
 (defn ^:export read-statement [s]
   (reader/read-string s))
+
+(defn put-image-under-path! [path image-blob]
+  (let [mod-path (make-mod-path path)
+        putting-map (make-request-headers
+                      {:body image-blob
+                       :method :POST})]
+    (println "image is " image-blob)
+    (-> (js/fetch "/api/img" putting-map)
+        (.then (fn [a] (if (= (.-status a) 304)
+                         (throw (js/Error. "Resource under "mod-path" not changed"))
+                         a)))
+        (.then (fn [a] (if (.-ok a) a
+                         (throw (js/Error. (str "Something went wrong. HTTP status was " (.status a)))))))
+        (.then #(.text %))
+        (.then #(put-under-path-and-mark-changed! mod-path %))
+        (.then (fn [a] (update-server! println println mod-path)))
+        (.catch (fn [a] (println "Image didn't take."))))))

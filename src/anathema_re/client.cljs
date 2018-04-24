@@ -17,6 +17,7 @@
     #(rum/mount (ui/app-core {:path                  path
                               :get-thing             dl/get-under-path
                               :put-thing!            dl/put-under-path-and-mark-changed!
+                              :put-image!            dl/put-image-under-path!
                               :reactive-atom         dl/page-temp-state
                               :current-user-atom     dl/auth-cache
                               :auth-response-handler aaf/transform-auth-response

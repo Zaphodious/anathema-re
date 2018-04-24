@@ -29,6 +29,15 @@
        (into [:.form-of])))
 
 
+(rum/defc img-field < rum/static
+  [{:keys [path value options owner? class get-thing put-thing put-image!] :as opts}]
+  [:input.field {:type  :file, ;:value "Select Image",
+                 :id (pr-str path)
+                 :key   (pr-str path)
+                 :accept "image/*"
+                 :onChange #(println #?(:cljs (put-image! path (-> % .-target .-files (aget 0)))
+                                        :clj "nope"))
+                 :class (str class (when (not owner?) " read-only"))}]) ;:value value}])
 
 (rum/defc text-field < rum/static
   [{:keys [path value options owner? class get-thing put-thing!] :as opts}]
@@ -41,12 +50,13 @@
                    :onChange #(put-thing! path (decode-js-change-event %))
                    :readOnly (not owner?)}]
     [:span.input-readonly.readonly {:class class} value]))
+
 (defmethod form-field-for :text [n] (text-field n))
+(defmethod form-field-for :image [n] (img-field n))
 
 (rum/defc entity-link < rum/static
-  [{:keys [img name description] :as entity}]
-  [:.entity-link
-   ;(pr-str entity)
+  [{:keys [img name description key category] :as entity}]
+  [:a.entity-link {:href (data/get-navigation-uri-from-path [category key])}
    [:img ;{:src img}]
     {:src (data/modify-imgur-url img :big-square)}]
    [:.entity-info
@@ -65,14 +75,9 @@
       [:.entity-list]
       (map entity-link entities))))
 
-
-(rum/defc img-field < rum/static
-  [{:keys [path value options owner? class get-thing put-thing] :as opts}])
-   
-
-(rum/defc profile-page [{:keys [path get-thing put-thing!]
+(rum/defc profile-page [{:keys [path get-thing put-thing! put-image!]
                          :as opts}]
-    (let [{:keys [key character rulebook] :as player}
+    (let [{:keys [key character rulebook img] :as player}
           (get-thing (take 2 path))
           current-player-id (get-thing [:current-player])
           owner? (= key current-player-id)]
@@ -83,19 +88,29 @@
         (form-seq
           (assoc opts :owner? owner?)
           [{:field-type :text, :owner? false
-            :path (conj path :name)
-            :label "Display Name"
-            :class "display-name"}
+            :path       (conj path :name)
+            :label      "Display Name"
+            :class      "display-name"}
            {:field-type :text, :owner? false
-            :path (conj path :real-name)
-            :label "Real Name"
-            :class "real-name"}
+            :path       (conj path :real-name)
+            :label      "Real Name"
+            :class      "real-name"}
            {:field-type :text, :owner? false
-            :path (conj path :email)
-            :label "Email"
-            :class "email"}])]
-       [:.section [:h3 "Characters"]
+            :path       (conj path :email)
+            :label      "Email"
+            :class      "email"}
+           {:field-type :image, :owner? false
+            :path       (conj path :img)
+            :value      img
+            :label      "Image"
+            :class      "image"
+            :put-image! put-image!}])
+        [:.section [:h3 "Characters"]
+         (entity-list {:get-thing    get-thing
+                       :entity-paths (map #(into [:character] [(str %)])
+                                          character)})]]
+       [:.section [:h3 "Rulebooks"]
         (entity-list {:get-thing get-thing
-                      :entity-paths (map #(into [:character] [(str %)])
-                                         character)})]]))
+                      :entity-paths (map #(into [:rulebook] [(str %)])
+                                         rulebook)})]]))
 

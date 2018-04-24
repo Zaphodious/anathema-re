@@ -80,6 +80,12 @@
   ;       ["452452452" "242424" "852852852" "01010101" "0" "1"]))
 
   (routes
+    (POST "/api/img" {:keys [uri headers query-string body]
+                       {:strs [file]} :params
+                       :as request}
+      (let [authed? (:user-id (id-for opts headers))]
+        {:status 200
+         :body   (:link (imgur body))}))
     (PUT "/api/player/me.:file-ext" []
       {:status 418
        :body "Please use player id directly."})

@@ -130,6 +130,16 @@
                      (str "/api"))
                    (str "." (name format)))))
 
+(defn get-navigation-uri-from-path
+  [path]
+  (str
+    (->> path
+         (map (fn [a] (if (number? a)
+                        (str a)
+                        (name a))))
+         (map (fn [a] (str "/" a)))
+         (reduce str))))
+
 (defn is-owner? [player-id path get-thing]
   (let [get-the-key (fn [a] (-> (take 2 path) (vec) (conj a) (get-thing) (= player-id)))]
     (or (get-the-key :key) (get-the-key :owner))))

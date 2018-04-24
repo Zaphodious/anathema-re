@@ -6,13 +6,12 @@
 (hireling/start-service-worker!
   {:version 1
    :app-name "anathema"
-   :precaching [{:url "/shell.html" :revision 1}
+   :precaching [{:url "/shell.html" :revision 2}
                 {:url "/api/rulebook/0.transit" :revision 1}
-                {:url "/" :revision 1}
+                {:url "/" :revision 2}
                 {:url "/sitekey.js" :revision 1}
                 ;{:url "/js/main.js" :revision 1}
-                {:url "/rand/precached.txt" :revision 1}
-                {:url "/style/main.css" :revision 1}]
+                {:url "/style/main.css" :revision 2}]
    :navigation-route {; URL to be called from the cache. Should be identical to one
                       ; provided in :precaching.
                       :url "/shell.html"

@@ -199,14 +199,16 @@ h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
 }
 
 .entity-list .entity-link {
-  padding: 5px;
-  margin: 5px;
-  height: 160px;
-  background-image: url(/img/blue_back.jpg);
   background-position: center;
+  height: 100px;
+  margin: 5px;
+  margin-bottom: 10px;
   background-size: cover;
   box-shadow: 0 0 6px darkgray;
   border-radius: 7px;
+  display: block;
+  background-image: url(/img/blue_back.jpg);
+  color: black;
 }
 
 .entity-list .entity-link * {
@@ -214,37 +216,41 @@ h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
 }
 
 .entity-list .entity-link img {
-  max-height: 150px;
+  max-height: 100px;
   width: auto;
   border-radius: 7px;
   display: inline-block;
-  margin: 3px;
+  box-shadow: 0 0 6px darkgray;
+  border-width: 1px;
+  border-color: black;
 }
 
 .entity-list .entity-link .entity-info {
   display: inline-block;
   height: 100%;
   margin-left: 5px;
+  width: calc(100%  -  130px);
 }
 
 .entity-list .entity-link .entity-info .name {
   float: none;
-  font-size: 3em;
+  font-size: 1.7em;
 }
 
 .entity-list .entity-link .entity-info .description {
-  font-size: 1.5em;
+  font-size: 1em;
 }
 
 .form-of {
   padding-right: 10px;
   padding-left: 10px;
+  margin-bottom: 10px;
   padding-top: 5px;
 }
 
 .form-of .form-row {
-  height: 1.3em;
-  margin-bottom: 1px;
+  height: 1.5em;
+  padding-bottom: 3px;
 }
 
 .form-of .form-row .readonly {
@@ -258,14 +264,18 @@ h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
 .form-of .form-row label {
   display: inline-block;
   width: 30%;
+  min-width: 100px;
+  word-wrap: none;
+  overflow: hidden;
 }
 
 input, select, textarea {
+  width: calc(100%  -  160px);
   background-position: center;
   border-width: 1px;
   border-left: solid;
   border-color: grey;
-  height: 75.0%;
+  height: 95.0%;
   border: none;
   vertical-align: bottom;
   padding: 2px;
@@ -278,7 +288,12 @@ input, select, textarea {
   margin-left: -5.0px;
   background-color: transparent;
   padding-right: 0;
+  display: inline-block;
   background-image: url(/img/blue_text_back.png);
+}
+
+input .image, select .image, textarea .image {
+  height: 150%;
 }
 
 input:focus, select:focus, textarea:focus {

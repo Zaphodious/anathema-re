@@ -322,41 +322,54 @@ title-bg-color
           [:* {:display :block
                :width :100%}]]]]]]]]
    [:.entity-list {:padding :10px}
-    [:.entity-link {:padding :5px
+    [:.entity-link {:display :block
+                    :color :black
+                    ;:padding :5px
                     :margin :5px
-                    :height :160px
+                    :margin-bottom :10px
+                    :height :100px
                     :background-image (url "/img/blue_back.jpg")
                     :background-position :center
                     :background-size :cover
                     :box-shadow elementshadow
                     :border-radius :7px}
      [:* {:float :left}]
-     [:img {:max-height :150px
+     [:img {:max-height :100px
             :width :auto
             :border-radius :7px
             :display :inline-block
-            :margin :3px}]
+            :box-shadow       elementshadow
+            :border-width :1px
+            :border-color :black}]
+            ;:border-style :solid
+            ;:margin :5px}]
      [:.entity-info {:display :inline-block
                      :height :100%
-                     :margin-left :5px}
+                     :margin-left :5px
+                     :width (calchelper :100% - :130px)}
       [:.name {:float :none
-               :font-size :3em}]
-      [:.description {:font-size :1.5em}]]]]
+               :font-size :1.7em}]
+      [:.description {:font-size :1em}]]]]
 
    [:.form-of {:padding-right :10px
                :padding-left :10px
+               :margin-bottom :10px
                :padding-top :5px}
-    [:.form-row {:height :1.3em
-                 :margin-bottom :1px}
+    [:.form-row {:height :1.5em
+                 :padding-bottom :3px}
      [:.readonly {}
       [:&:before {:content "\" |  \""}]];:border-bottom "solid 1px black"}]
      [:label {:display :inline-block
-              :width :30%}
+              :width :30%
+              :min-width :100px
+              :word-wrap :none
+              :overflow :hidden}
       [:&:after]]]]
    [:input :select :textarea {:background-color :transparent ;(gc/rgba 255 255 255 0.0)
                               :background-image (url "/img/blue_text_back.png")
                               :background-position :center
                               :background-size :cover
+                              :display :inline-block
                               ;:border-radius :9px
                               :box-shadow       inputshadow
                               ;:border-bottom    :solid
@@ -367,7 +380,8 @@ title-bg-color
                               :border-color     :grey
                               :border-right     :none
                               :border-top       :none
-                              :height           (-% 75)
+                              :height           (-% 95)
+                              :width            (calchelper :100% - :160px)
                               :margin-bottom    (-px -1)
                               :margin-top    (-px 2)
                               :margin-left      (-px -5)
@@ -375,6 +389,7 @@ title-bg-color
                               ;:padding-bottom :2px
                               :padding-right    0
                               :vertical-align   :bottom}
+    [:.image {:height :150%}]
     ;:margin-left (-px 3)}
     [:&:focus {:outline          :none
                :box-shadow       elementshadow
