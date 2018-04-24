@@ -19,7 +19,7 @@
        (map-indexed
          (fn [n {:keys [label path value] :as a}]
            [:.form-row
-            [:label {:for (pr-str path)} label]
+            (when label [:label {:for (pr-str path)} label])
             (form-field-for (assoc a
                               :get-thing get-thing
                               :put-thing! put-thing!
@@ -42,16 +42,37 @@
     [:span.input-readonly.readonly {:class class} value]))
 (defmethod form-field-for :text [n] (text-field n))
 
+(rum/defc entity-link < rum/static
+  [{:keys [img name] :as entity}]
+  [:.entity-link
+   ;(pr-str entity)
+   [:img {:src img}]
+   [:.name name]])
+
+(rum/defc entity-list
+  [{:keys [entity-paths get-thing]}]
+  (println "entity paths are " entity-paths)
+  (let [entities (map
+                     (fn [path]
+                       (get-thing path))
+                     entity-paths)]
+    (println "Entities are " entities)
+    (into
+      [:.entity-list]
+      (map entity-link entities))))
+
+
 (rum/defc img-field < rum/static
   [{:keys [path value options owner? class get-thing put-thing] :as opts}])
    
 
 (rum/defc profile-page [{:keys [path get-thing put-thing!]
                          :as opts}]
-    (let [{:keys [key] :as player}
+    (let [{:keys [key character rulebook] :as player}
           (get-thing (take 2 path))
           current-player-id (get-thing [:current-player])
           owner? (= key current-player-id)]
+      (println "Character vec is " character)
       (println "key is " key "and current player is " current-player-id", so owner is " owner?)
       [:.interior
        [:.section [:h3 "Profile Information"]
@@ -68,5 +89,9 @@
            {:field-type :text, :owner? false
             :path (conj path :email)
             :label "Email"
-            :class "email"}])]]))
+            :class "email"}])]
+       [:.section [:h3 "Characters"]
+        (entity-list {:get-thing get-thing
+                      :entity-paths (map #(into [:character] [(str %)])
+                                         character)})]]))
 

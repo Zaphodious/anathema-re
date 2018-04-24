@@ -321,6 +321,10 @@ title-bg-color
          [:li {:list-style :none} ;:border :solid}
           [:* {:display :block
                :width :100%}]]]]]]]]
+   [:.entity-list {:padding :20px}
+    [:.entity-link {:padding :0px}
+     [:img {:max-height :100px
+            :width :auto}]]]
    [:.form-of {:padding-right :10px
                :padding-left :10px
                :padding-top :5px}

@@ -4,7 +4,8 @@
             [cognitect.transit :as transit]
             [com.rpl.specter :as sp]
             [alandipert.storage-atom :as statom]
-            [clojure.set :as set]))
+            [clojure.set :as set]
+            [clojure.tools.reader :as reader]))
 
 (comment
   "This namespace contains all the code concerned with IO with the anathema server.
@@ -168,7 +169,7 @@
                   (make-request-headers))
           (.then (fn [a] (if (= (.-status a)
                                 304)
-                           (throw (js/Error. "Resource not changed"))
+                           (throw (js/Error. (str "Resource under "mod-path" not changed")))
                            a)))
           (.then (fn [a] (if (.-ok a)
                            a
@@ -238,7 +239,7 @@
                                              :body   this-body}))
             (.then (fn [a] (if (= (.-status a)
                                   304)
-                             (throw (js/Error. "Resource not changed"))
+                             (throw (js/Error. "Resource under "mod-path" not changed"))
                              a)))
             (.then (fn [a] (if (.-ok a)
                              a
@@ -292,3 +293,6 @@
   (println "page-temp-state: " page-temp-state)
   (println "changed paths are " changes-since-last-push)
   (println "key is " goog-key-atom))
+
+(defn ^:export read-statement [s]
+  (reader/read-string s))

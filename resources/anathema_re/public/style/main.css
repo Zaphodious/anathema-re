@@ -194,6 +194,19 @@ h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
   width: 100%;
 }
 
+.entity-list {
+  padding: 20px;
+}
+
+.entity-list .entity-link {
+  padding: 0px;
+}
+
+.entity-list .entity-link img {
+  max-height: 100px;
+  width: auto;
+}
+
 .form-of {
   padding-right: 10px;
   padding-left: 10px;
