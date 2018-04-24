@@ -321,10 +321,28 @@ title-bg-color
          [:li {:list-style :none} ;:border :solid}
           [:* {:display :block
                :width :100%}]]]]]]]]
-   [:.entity-list {:padding :20px}
-    [:.entity-link {:padding :0px}
-     [:img {:max-height :100px
-            :width :auto}]]]
+   [:.entity-list {:padding :10px}
+    [:.entity-link {:padding :5px
+                    :margin :5px
+                    :height :160px
+                    :background-image (url "/img/blue_back.jpg")
+                    :background-position :center
+                    :background-size :cover
+                    :box-shadow elementshadow
+                    :border-radius :7px}
+     [:* {:float :left}]
+     [:img {:max-height :150px
+            :width :auto
+            :border-radius :7px
+            :display :inline-block
+            :margin :3px}]
+     [:.entity-info {:display :inline-block
+                     :height :100%
+                     :margin-left :5px}
+      [:.name {:float :none
+               :font-size :3em}]
+      [:.description {:font-size :1.5em}]]]]
+
    [:.form-of {:padding-right :10px
                :padding-left :10px
                :padding-top :5px}

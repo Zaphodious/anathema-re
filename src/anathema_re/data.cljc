@@ -133,3 +133,22 @@
 (defn is-owner? [player-id path get-thing]
   (let [get-the-key (fn [a] (-> (take 2 path) (vec) (conj a) (get-thing) (= player-id)))]
     (or (get-the-key :key) (get-the-key :owner))))
+
+(def imgur-thumb-types
+  {:small-square "s"
+   :big-square "b"
+   :small-thumbnail "t"
+   :medium-thumbnail "m"
+   :large-thumbnail "l"
+   :huge-thumbnail "h"})
+
+(defn modify-imgur-url [imgur-url thumb-type]
+  (println "url is " imgur-url)
+  (if (re-matches #".*i.imgur.*" imgur-url)
+    (let [[pre :as imgur-split] (str/split imgur-url #".png|.jpg|.gif|.gifv")
+          thumb-suffix (get imgur-thumb-types thumb-type)
+          mod-url (str pre thumb-suffix ".png")]
+      (println "new image is " mod-url)
+      mod-url)
+
+    imgur-url))

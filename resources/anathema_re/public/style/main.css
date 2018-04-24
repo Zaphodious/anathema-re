@@ -195,16 +195,45 @@ h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
 }
 
 .entity-list {
-  padding: 20px;
+  padding: 10px;
 }
 
 .entity-list .entity-link {
-  padding: 0px;
+  padding: 5px;
+  margin: 5px;
+  height: 160px;
+  background-image: url(/img/blue_back.jpg);
+  background-position: center;
+  background-size: cover;
+  box-shadow: 0 0 6px darkgray;
+  border-radius: 7px;
+}
+
+.entity-list .entity-link * {
+  float: left;
 }
 
 .entity-list .entity-link img {
-  max-height: 100px;
+  max-height: 150px;
   width: auto;
+  border-radius: 7px;
+  display: inline-block;
+  margin: 3px;
+}
+
+.entity-list .entity-link .entity-info {
+  display: inline-block;
+  height: 100%;
+  margin-left: 5px;
+}
+
+.entity-list .entity-link .entity-info .name {
+  float: none;
+  font-size: 3em;
+}
+
+.entity-list .entity-link .entity-info .description {
+  font-size: 1.5em;
 }
 
 .form-of {

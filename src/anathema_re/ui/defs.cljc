@@ -1,5 +1,6 @@
 (ns anathema-re.ui.defs
-  (:require [rum.core :as rum]))
+  (:require [rum.core :as rum]
+            [anathema-re.data :as data]))
 
 (defmulti form-field-for :field-type)
 (defmethod form-field-for nil [_] nil)
@@ -43,11 +44,14 @@
 (defmethod form-field-for :text [n] (text-field n))
 
 (rum/defc entity-link < rum/static
-  [{:keys [img name] :as entity}]
+  [{:keys [img name description] :as entity}]
   [:.entity-link
    ;(pr-str entity)
-   [:img {:src img}]
-   [:.name name]])
+   [:img ;{:src img}]
+    {:src (data/modify-imgur-url img :big-square)}]
+   [:.entity-info
+    [:.name name]
+    [:.description description]]])
 
 (rum/defc entity-list
   [{:keys [entity-paths get-thing]}]
