@@ -68,6 +68,19 @@
   ;    (recur (vec (drop-last path))
   ;           (assoc hashes path (future (hash-fn (get-thing path))))))))
 
+(defn clean-player [{:keys [opts headers path full]}]
+  (let [fetchi (get-full-player-data path (:get-thing opts) full)
+        logged-id (id-for opts headers)
+        this-id ((:get-thing opts) [:player (second path) :key])
+        id-matches? (= logged-id this-id)]
+       (if id-matches?
+         fetchi
+         (if (associative? fetchi)
+           (dissoc fetchi :real-name :email)
+           (if (re-matches #".*real-name|email.*" (pr-str path))
+             ""
+             fetchi)))))
+;(get-full-player-data path get-thing full))
 
 (defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth imgur]
                                                     :as opts}]
@@ -146,9 +159,17 @@
             dest-format (if file-ext
                           (keyword file-ext)
                           :transit)
-            dest-thing (data/write-data-as (if (= :player (first path))
-                                             (get-full-player-data path get-thing full)
-                                             (get-thing path))
+            thing-got  (if (= :player (first path))
+                           (clean-player {:opts opts
+                                          :headers headers
+                                          :path path
+                                          :full full}) ;
+                           (get-thing path))
+            ;cleaned-thing (if (or (= (id-for opts headers) (:key thing-got))
+            ;                      (= (id-for opts headers) (:owner thing-got)))
+            ;                thing-got
+            ;                (dissoc thing-got :email :real-name :token))
+            dest-thing (data/write-data-as thing-got
                                            dest-format)
             dest-hash (proper-hash dest-thing)
             same-thing? (= got-hash dest-hash)]

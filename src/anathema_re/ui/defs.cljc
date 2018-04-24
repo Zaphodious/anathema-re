@@ -20,13 +20,14 @@
   (->> form-field-dec-vec
        (map-indexed
          (fn [n {:keys [label path value] :as a}]
-           [:.form-row
-            (when label [:label {:for (pr-str path)} label])
-            (form-field-for (assoc a
-                              :get-thing get-thing
-                              :put-thing! put-thing!
-                              :owner? owner?
-                              :value (or value (get-thing path))))]))
+           (when a
+             [:.form-row
+              (when label [:label {:for (pr-str path)} label])
+              (form-field-for (assoc a
+                                :get-thing get-thing
+                                :put-thing! put-thing!
+                                :owner? owner?
+                                :value (or value (get-thing path))))])))
        (into [:.form-of])))
 
 
@@ -103,8 +104,7 @@
           (get-thing (take 2 path))
           current-player-id (get-thing [:current-player])
           owner? (= key current-player-id)]
-      (println "Character vec is " character)
-      (println "key is " key "and current player is " current-player-id", so owner is " owner?)
+      (println "path is " path)
       [:.interior
        [:.section
         [:img.profile-banner {:src (data/modify-imgur-url img :huge-thumbnail)}]]
@@ -115,26 +115,29 @@
             :path       (conj path :name)
             :label      "Display Name"
             :class      "display-name"}
-           {:field-type :text, :owner? false
-            :path       (conj path :real-name)
-            :label      "Real Name"
-            :class      "real-name"}
-           {:field-type :text, :owner? false
-            :path       (conj path :email)
-            :label      "Email"
-            :class      "email"}
+           (when (= path [:player "me"])
+             {:field-type :text, :owner? false
+              :path       (conj path :real-name)
+              :label      "Real Name"
+              :class      "real-name"})
+           (when (= path [:player "me"])
+             {:field-type :text, :owner? false
+              :path       (conj path :email)
+              :label      "Email"
+              :class      "email"})
            {:field-type :link-share, :owner? false
-            :path       (when key [:character key])
+            :path       (when key [:player key])
             :value      true
             :label      "Share Link"
             :class      "sharelink"
             :read-only  true}
-           {:field-type :image, :owner? false
-            :path       (conj path :img)
-            :value      img
-            :label      "Image"
-            :class      "image"
-            :put-image! put-image!}])
+           (when (= path [:player "me"])
+             {:field-type :image, :owner? false
+              :path       (conj path :img)
+              :value      img
+              :label      "Image"
+              :class      "image"
+              :put-image! put-image!})])
         [:.section [:h3 "Characters"]
          (entity-list {:get-thing    get-thing
                        :entity-paths (map #(into [:character] [(str %)])
