@@ -35,7 +35,7 @@
       ;   :body
       ;            (#'style/compile-style)})
       (GET "/" []
-        (page-make [:home]))
+        (ring-response/redirect "/player/me"))
       (GET "/shell.html" []
         (page-make [:shell]))
       (GET "/oauth" [])

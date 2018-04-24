@@ -97,7 +97,7 @@
 (rum/defc player-page < rum/reactive
   [{:keys [path get-thing put-thing! current-player-atom] :as opts}]
   (let [{:keys [name] :as player} (get-thing path)]
-    [:.interior (auid/profile-page opts)]))
+    [:.interior (auid/player-profile-page opts)]))
 
 (defmethod page-for nil
   [optmap] (root-page optmap))
@@ -108,6 +108,6 @@
 (defmethod page-for :character
   [optmap] (character-page optmap))
 (defmethod page-for :player
-  [optmap] (auid/profile-page optmap))
+  [optmap] (auid/player-profile-page optmap))
 (defmethod page-for :rulebook
   [optmap] (rulebook-page optmap))

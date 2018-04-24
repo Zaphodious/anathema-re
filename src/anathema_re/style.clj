@@ -357,15 +357,19 @@ title-bg-color
                :padding-left :10px
                :margin-bottom :10px
                :padding-top :5px}
-    [:.form-row {:height :1.5em
+    [:.form-row {:display :inline-block
+                 :width :100%
+                 :height :1.5em
                  :padding-bottom :3px}
      [:.readonly {}
       [:&:before {:content "\" |  \""}]];:border-bottom "solid 1px black"}]
      [:label {:display :inline-block
-              :width :30%
               :min-width :100px
               :word-wrap :none
-              :overflow :hidden}
+              :overflow :hidden
+              :text-align :right
+              :margin-right :10px}
+
       [:&:after]]]]
    [:input :select :textarea {:background-color :transparent ;(gc/rgba 255 255 255 0.0)
                               :background-image (url "/img/blue_text_back.png")
@@ -383,7 +387,7 @@ title-bg-color
                               :border-right     :none
                               :border-top       :none
                               :height           (-% 95)
-                              :width            (calchelper :100% - :160px)
+                              :width            (calchelper :100% - :120px)
                               :margin-bottom    (-px -1)
                               :margin-top    (-px 2)
                               :margin-left      (-px -5)

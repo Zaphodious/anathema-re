@@ -1,6 +1,7 @@
 (ns anathema-re.ui.defs
   (:require [rum.core :as rum]
-            [anathema-re.data :as data]))
+            [anathema-re.data :as data]
+            [clojure.string :as str]))
 
 (defmulti form-field-for :field-type)
 (defmethod form-field-for nil [_] nil)
@@ -40,18 +41,39 @@
                  :class (str class (when (not owner?) " read-only"))}]) ;:value value}])
 
 (rum/defc text-field < rum/static
-  [{:keys [path value options owner? class get-thing put-thing!] :as opts}]
+  [{:keys [path value options owner? class get-thing put-thing! read-only] :as opts}]
   ;(println "Making text field for " path)
   ;(println "Opts are " opts)
   (if owner?
     [:input.field {:type  :text, :value value, :id (pr-str path)
                    :key   (pr-str path)
                    :class (str class (when (not owner?) " read-only"))
-                   :onChange #(put-thing! path (decode-js-change-event %))
-                   :readOnly (not owner?)}]
+                   :onChange (if read-only (fn [a]) #(put-thing! path (decode-js-change-event %)))
+                   :readOnly (or (not owner?) read-only)}]
     [:span.input-readonly.readonly {:class class} value]))
 
+(rum/defc link-share-field < rum/static
+  [{:keys [path value options owner? class get-thing put-thing! read-only] :as opts}]
+  [:input.field {:type     :text, :value (when path
+                                           #?(:clj ""
+                                              :cljs
+                                                   (str
+                                                     (-> js/location .-protocol)
+                                                     "//"
+                                                     (-> js/location .-hostname)
+                                                     (let [port (-> js/location .-port)]
+                                                       (when (not (= "" port))
+                                                         (str ":" port)))
+
+                                                     (data/get-navigation-uri-from-path path))),)
+                 :id       (pr-str path)
+                 :key      (pr-str path)
+                 :class    "link-share"
+                 :onChange (fn [a] a)
+                 :readOnly true}])
+
 (defmethod form-field-for :text [n] (text-field n))
+(defmethod form-field-for :link-share [n] (link-share-field n))
 (defmethod form-field-for :image [n] (img-field n))
 
 (rum/defc entity-link < rum/static
@@ -75,8 +97,8 @@
       [:.entity-list]
       (map entity-link entities))))
 
-(rum/defc profile-page [{:keys [path get-thing put-thing! put-image!]
-                         :as opts}]
+(rum/defc player-profile-page [{:keys [path get-thing put-thing! put-image!]
+                                :as          opts}]
     (let [{:keys [key character rulebook img] :as player}
           (get-thing (take 2 path))
           current-player-id (get-thing [:current-player])
@@ -101,6 +123,12 @@
             :path       (conj path :email)
             :label      "Email"
             :class      "email"}
+           {:field-type :link-share, :owner? false
+            :path       (when key [:character key])
+            :value      true
+            :label      "Share Link"
+            :class      "sharelink"
+            :read-only  true}
            {:field-type :image, :owner? false
             :path       (conj path :img)
             :value      img
