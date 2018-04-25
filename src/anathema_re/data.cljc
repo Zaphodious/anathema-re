@@ -164,3 +164,10 @@
           mod-url)))
 
     imgur-url))
+
+(defn prep-entity-for-display [{:keys [path get-thing put-thing!] :as opts}]
+  (let [{:keys [key owner] :as entity} (get-thing (take 2 path))
+        current-player-id (get-thing [:current-player])
+        owner? (or (= current-player-id key)
+                   (= current-player-id owner))]
+    (assoc entity :owner? owner?)))

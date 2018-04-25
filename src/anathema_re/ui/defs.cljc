@@ -105,10 +105,9 @@
 
 (rum/defc player-profile-page [{:keys [path get-thing put-thing! put-image!]
                                 :as          opts}]
-    (let [{:keys [key character rulebook img] :as player}
-          (get-thing (take 2 path))
-          current-player-id (get-thing [:current-player])
-          owner? (= key current-player-id)]
+    (let [{:keys [key character rulebook img owner?] :as player}
+          (data/prep-entity-for-display opts)]
+      ;[player-id path get-thing]
       (println "path is " path)
       [:.interior
        (profile-banner img)
@@ -153,8 +152,16 @@
 
 (rum/defc character-sheet [{:keys [path get-thing put-thing! put-image!]
                             :as          opts}]
-  (let [{:keys [key name img] :as player}
-        (get-thing (take 2 path))]
+  (let [{:keys [key character rulebook img owner?] :as player}
+        (data/prep-entity-for-display opts)]
     [:.interior
-     (profile-banner img)]))
+     (profile-banner img)
+     [:.section [:h3 "Identity"]
+      (form-seq
+        (assoc opts :owner? owner?)
+        [{:field-type :text, :owner? false
+          :path       (conj path :name)
+          :label      "Name"
+          :class      "display-name"}])]]))
+
 
