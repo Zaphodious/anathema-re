@@ -6,9 +6,9 @@
 (hireling/start-service-worker!
   {:version 1
    :app-name "anathema"
-   :precaching [{:url "/shell.html" :revision 2}
+   :precaching [{:url "/shell.html" :revision 3}
                 {:url "/api/rulebook/0.transit" :revision 1}
-                {:url "/" :revision 4}
+                {:url "/" :revision 5}
                 {:url "/sitekey.js" :revision 1}
                 ;{:url "/js/main.js" :revision 1}
                 {:url "/style/main.css" :revision 4}]
