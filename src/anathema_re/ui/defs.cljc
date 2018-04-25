@@ -98,6 +98,11 @@
       [:.entity-list]
       (map entity-link entities))))
 
+(rum/defc profile-banner < rum/static
+  [image-url]
+  [:.section
+   [:img.profile-banner {:src (data/modify-imgur-url image-url :huge-thumbnail)}]])
+
 (rum/defc player-profile-page [{:keys [path get-thing put-thing! put-image!]
                                 :as          opts}]
     (let [{:keys [key character rulebook img] :as player}
@@ -106,8 +111,7 @@
           owner? (= key current-player-id)]
       (println "path is " path)
       [:.interior
-       [:.section
-        [:img.profile-banner {:src (data/modify-imgur-url img :huge-thumbnail)}]]
+       (profile-banner img)
        [:.section [:h3 "Profile Information"]
         (form-seq
           (assoc opts :owner? owner?)
@@ -146,4 +150,11 @@
         (entity-list {:get-thing get-thing
                       :entity-paths (map #(into [:rulebook] [(str %)])
                                          rulebook)})]]))
+
+(rum/defc character-sheet [{:keys [path get-thing put-thing! put-image!]
+                            :as          opts}]
+  (let [{:keys [key name img] :as player}
+        (get-thing (take 2 path))]
+    [:.interior
+     (profile-banner img)]))
 

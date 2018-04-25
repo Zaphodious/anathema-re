@@ -59,7 +59,7 @@
             (.then #(reset! dl/auth-cache %))
             (.then #(swap! dl/page-temp-state (fn [a] (assoc a :current-player (:key %))))))
       ;(println "auth-cache is " dl/auth-cache)
-        ;(.reload js/location true)
+        (.reload js/location true)
         (swap! dl/auth-cache (fn [a] (merge a deconstruct-response)))
         (dl/auth-cache-to-temp-state!)))))
 

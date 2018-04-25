@@ -106,7 +106,7 @@
 (defmethod page-for :shell
   [optmap] (shell-page optmap))
 (defmethod page-for :character
-  [optmap] (character-page optmap))
+  [optmap] (auid/character-sheet optmap))
 (defmethod page-for :player
   [optmap] (auid/player-profile-page optmap))
 (defmethod page-for :rulebook

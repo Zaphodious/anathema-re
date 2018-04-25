@@ -11,7 +11,7 @@
                 {:url "/" :revision 5}
                 {:url "/sitekey.js" :revision 1}
                 ;{:url "/js/main.js" :revision 1}
-                {:url "/style/main.css" :revision 4}]
+                {:url "/style/main.css" :revision 5}]
    :navigation-route {; URL to be called from the cache. Should be identical to one
                       ; provided in :precaching.
                       :url "/shell.html"
