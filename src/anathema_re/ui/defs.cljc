@@ -1,7 +1,8 @@
 (ns anathema-re.ui.defs
   (:require [rum.core :as rum]
             [anathema-re.data :as data]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clojure.pprint :as pprint]))
 
 (defmulti form-field-for :field-type)
 (defmethod form-field-for nil [_] nil)
@@ -152,7 +153,7 @@
 
 (rum/defc character-sheet [{:keys [path get-thing put-thing! put-image!]
                             :as          opts}]
-  (let [{:keys [key character rulebook img owner?] :as player}
+  (let [{:keys [key character rulebook img owner?] :as entity}
         (data/prep-entity-for-display opts)]
     [:.interior
      (profile-banner img)
@@ -162,6 +163,23 @@
         [{:field-type :text, :owner? false
           :path       (conj path :name)
           :label      "Name"
-          :class      "display-name"}])]]))
+          :class      "display-name"}
+         {:field-type :link-share, :owner? false
+          :path       (when key [:character key])
+          :value      true
+          :label      "Share Link"
+          :class      "sharelink"
+          :read-only  true}
+         {:field-type :text, :owner? false
+          :path (conj path :player)
+          :label "Player"
+          :class "display-player"}
+         {:field-type :text, :owner? false
+          :path (conj path :type)
+          :label "Type"
+          :class "display-type"}])]
+
+     [:.section [:h3 "The Rest"]
+      (str entity)]]))
 
 
