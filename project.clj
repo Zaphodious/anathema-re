@@ -30,6 +30,7 @@
                  [cheshire "5.8.0"]
                  [hireling "0.6.1-SNAPSHOT"]
                  [cljsjs/google-platformjs-extern "1.0.0-0"]
+                 [com.google.apis/google-api-services-drive "v3-rev110-1.23.0"]
                  [com.google.api-client/google-api-client "1.23.0" :exclusions [com.google.guava/guava-jdk5]]]
   :plugins [[duct/lein-duct "0.10.6"]
             [lein-environ "1.1.0"]]
