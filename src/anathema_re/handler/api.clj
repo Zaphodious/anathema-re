@@ -17,35 +17,6 @@
        (map (fn [a] [(:key a) a]))
        (into {})))
 
-(defn get-full-player-data [path get-thing full?]
-  (if (and full? (read-string full?))
-    (let [{:keys [character rulebook]
-           :as provincial-player}
-          (get-thing path)
-          filled-rulebook (fill-vec-of rulebook :rulebook get-thing)
-          filled-character (fill-vec-of character :character get-thing)]
-      (-> provincial-player
-          (assoc :rulebook filled-rulebook)
-          (assoc :character filled-character)
-          (assoc :category :player-full)))
-    (get-thing path)))
-
-(defn handle-player-me-data [{:keys [get-thing put-thing! goog-oauth]} {:strs [token] :as headers}]
-  (let [player-me (goog-oauth token)
-        player-path [:player (:user-id player-me)]
-        existant-player (get-thing player-path)
-        new-player (merge
-                     {:character [] :rulebook []}
-                     existant-player
-                     (-> player-me
-                         (set/rename-keys {:user-id :key :picture-url :img}))
-                     (select-keys existant-player
-                                  [:name :img]))]
-
-
-    (println "player is " (pr-str new-player))
-    (async/go (put-thing! player-path new-player))
-    new-player))
 
 (defn id-for [{:keys [goog-oauth] :as opts} {:strs [token] :as headers}]
   (println "google auth is " (goog-oauth token))
@@ -68,18 +39,6 @@
   ;    (recur (vec (drop-last path))
   ;           (assoc hashes path (future (hash-fn (get-thing path))))))))
 
-(defn clean-player [{:keys [opts headers path full]}]
-  (let [fetchi (get-full-player-data path (:get-thing opts) full)
-        logged-id (id-for opts headers)
-        this-id ((:get-thing opts) [:player (second path) :key])
-        id-matches? (= logged-id this-id)]
-       (if id-matches?
-         fetchi
-         (if (associative? fetchi)
-           (dissoc fetchi :real-name :email)
-           (if (re-matches #".*real-name|email.*" (pr-str path))
-             ""
-             fetchi)))))
 ;(get-full-player-data path get-thing full))
 
 (defmethod ig/init-key :anathema-re.handler/api [_ {:keys [get-thing put-thing! goog-oauth imgur]
@@ -96,15 +55,8 @@
     (POST "/api/img" {:keys [uri headers query-string body]
                        {:strs [file]} :params
                        :as request}
-      (let [authed? (:user-id (id-for opts headers))]
-        {:status 200
-         :body   (:link (imgur body))}))
-    (PUT "/api/player/me.:file-ext" []
-      {:status 418
-       :body "Please use player id directly."})
-    (PUT "/api/player/me/*.:file-ext" []
-      {:status 418
-       :body "Please use player id directly."})
+      {:status 200
+       :body   (:link (imgur body))})
     (PUT "/api/*.:file-ext"  [file-ext full :as
                               {:keys [uri headers query-string body]
                                {:strs [file]} :params
@@ -113,40 +65,20 @@
             owner? (data/is-owner? (id-for opts headers) path get-thing)]
         (println "the logged in id is " (id-for opts headers))
         (println "Path for this is " path)
-        (if (and owner? (not (= :owner (last path))))
-          (let [dest-format (if file-ext
-                              (keyword file-ext)
-                              :transit)
-                read-in-content (data/read-data-as body dest-format imgur)
-                write-result (put-thing! path read-in-content)
-                hashes (recursive-hash path get-thing #(.hashCode (data/write-data-as % dest-format)))
-                written-hashes (data/write-data-as hashes dest-format)]
-            (println "This is what came in - "body)
-            (println "Should have written in " read-in-content ", under " path)
-            {:status 200
-             :body written-hashes})
-          {:status 403
-           :body "NOT AUTHORIZED!"})))
-    (GET "/api/player/me.:file-ext" [file-ext got-hash :as {:keys [headers]}]
-      (let [dest-format (if file-ext
-                          (keyword file-ext)
-                          :transit)
-            me-string (data/write-data-as (handle-player-me-data opts headers)
-                                          dest-format)
-            me-hash (proper-hash me-string)
-            same-thing? (= got-hash me-hash)]
-        ;(println "header is " headers)
-        (if same-thing?
-          {:status 304
-           :body ""}
-          {:status  200
-           :headers {"Content-Type"  (data/content-type-for dest-format)
-                     "Cache-Control" "no-cache, no-store, must-revalidate"
-                     "hash" me-hash}
-           :body me-string})))
-    (GET "/api/player/me/*.:file-ext" []
-      {:status 418
-       :body "Please use player id directly."})
+        (let [dest-format (if file-ext
+                             (keyword file-ext)
+                             :transit)
+               read-in-content (data/read-data-as body dest-format imgur)
+               write-result (put-thing! path read-in-content)
+               hashes (recursive-hash path get-thing #(.hashCode (data/write-data-as % dest-format)))
+               written-hashes (data/write-data-as hashes dest-format)]
+           (println "This is what came in - "body)
+           (println "Should have written in " read-in-content ", under " path)
+           {:status 200
+            :body written-hashes})))
+    (GET "/api/home.*" []
+      {:status 200
+       :body "[]"})
     (GET "/api/*.:file-ext"
          [file-ext full got-hash :as
           {:keys [uri headers query-string]
@@ -159,12 +91,7 @@
             dest-format (if file-ext
                           (keyword file-ext)
                           :transit)
-            thing-got  (if (= :player (first path))
-                           (clean-player {:opts opts
-                                          :headers headers
-                                          :path path
-                                          :full full}) ;
-                           (get-thing path))
+            thing-got  (get-thing path)
             ;cleaned-thing (if (or (= (id-for opts headers) (:key thing-got))
             ;                      (= (id-for opts headers) (:owner thing-got)))
             ;                thing-got

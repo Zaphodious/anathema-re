@@ -24,8 +24,6 @@
   (statom/local-storage
     (atom {:character {}
            :rulebook {}
-           :player {}
-           :player-me nil
            :change-thing (rand)})
     :app-state))
 
@@ -66,9 +64,7 @@
                false)))
 
 (defn make-mod-path [path]
-   (if (= "me" (second path))
-     (-> path vec (assoc 1 (or (:player-me @page-temp-state) "010101")))
-     path))
+   path)
 
 (defn register-path-as-changed! [path]
   (let [mod-path (make-mod-path path)]
@@ -95,18 +91,6 @@
                   (constantly entity)
                   page-temp-state)))
 
-(defmethod add-entity :player-full [{:keys [category key
-                                            character rulebook]
-                                     :as entity}]
-  (async/go
-    (let [dumb-player (assoc entity
-                        :category :player
-                        :character (vec (map first character))
-                        :rulebook (vec (map first rulebook)))]
-      (-> (into character rulebook)
-          (into {key dumb-player})
-          (map second)
-          (map add-entity)))))
 
 (defn put-under-path! [path thing]
   (println "Putting " thing " under " path)
@@ -126,24 +110,6 @@
                 (fn [_] entity)
                 page-temp-state))
 
-(defn insert-entity [{:keys [character rulebook full key category]
-                      :as   player-entity}]
-  (if full
-    (let [char-vec (vec (map first character))
-          rulebook-vec (vec (map first rulebook))
-          basic-player (-> player-entity
-                          (assoc :character char-vec)
-                          (assoc :rulebook rulebook-vec))]
-      (sp/transform [sp/ATOM]
-                    (fn [a]
-                      (-> a
-                          (assoc :player {key basic-player})
-                          (assoc :character character)
-                          (assoc :rulebook rulebook)))
-                    page-temp-state))
-      ;(println "atom is now " page-temp-state))
-
-    (add-entity-to-page-state! player-entity)))
 
 (defn print-pass [t]
   (println t)
@@ -190,25 +156,8 @@
           (.then (fn [a] (async/put! promise-ch a)))))
     promise-ch))
 
-(defn auth-cache-to-temp-state! []
-  (let [auth @auth-cache]
-    (when (not (empty? auth))
-      (do
-        ;(println "syncing this all up and down!")
-        (sp/transform [sp/ATOM :player-me] (constantly (:key auth))
-                      page-temp-state)
-        (sync-path-from-server [:player "me"])))))
-
 (def starting-page-gets
   []);[:rulebook "0"]])
-
-
-(defn sync-site-key []
-  (async/go
-    (-> (.fetch js/window "/site-key.txt")
-        (.then #(.text %))
-        (.then #(print-pass %))
-        (.then #(reset! goog-key-atom %)))))
 
       ;(println "At this point, atom is " page-temp-state))))
 
@@ -281,7 +230,7 @@
       (map
         sync-path-from-server
         starting-page-gets)))
-  (async/go (auth-cache-to-temp-state!))
+  ;(async/go (auth-cache-to-temp-state!))
   (async/go (js/setInterval (fn [] (when (can-server-sync?)
                                      (update-dirty-paths!)))
                             (* 1000 seconds-between-sync)))

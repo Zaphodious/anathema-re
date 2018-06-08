@@ -24,7 +24,6 @@
                       ; Optional. Similar to the blacklist. If a route matches here and is not
                       ; canceled by the blacklist, the cached asset will be returned.
                       :whitelist [#"/character/"
-                                  #"/player/"
                                   #"/rulebook/"]}
    :precache-routing-opts {:directoryIndex ""}
    :cache-routes [{:strategy :cache-first

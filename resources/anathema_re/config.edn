@@ -19,14 +19,14 @@
  :anathema-re.middleware/file {}
 
  :duct.router/cascading
-                                [#ig/ref :anathema-re.handler/js
-                                 #ig/ref :anathema-re.handler/example
-                                 #ig/ref :anathema-re.handler/site
-                                 #ig/ref :anathema-re.handler/resources
-                                 #ig/ref :anathema-re.handler/api]
+ [#ig/ref :anathema-re.handler/js
+  #ig/ref :anathema-re.handler/example
+  #ig/ref :anathema-re.handler/site
+  #ig/ref :anathema-re.handler/resources
+  #ig/ref :anathema-re.handler/api]
 
  :anathema-re.boundary/environ  {}
- :anathema-re.boundary/goog-oauth {:environ #ig/ref :anathema-re.boundary/environ}
+
  :anathema-re.boundary/imgur {:environ #ig/ref :anathema-re.boundary/environ}
 
  :anathema-re.boundary.mongo/connection    {:environ #ig/ref :anathema-re.boundary/environ}
@@ -40,6 +40,5 @@
  :anathema-re.handler/js {}
  :anathema-re.handler/api {:get-thing #ig/ref :anathema-re.boundary/get
                            :put-thing! #ig/ref :anathema-re.boundary/put
-                           :imgur #ig/ref :anathema-re.boundary/imgur
-                           :goog-oauth #ig/ref :anathema-re.boundary/goog-oauth}
+                           :imgur #ig/ref :anathema-re.boundary/imgur}
  :anathema-re.handler/resources {}}

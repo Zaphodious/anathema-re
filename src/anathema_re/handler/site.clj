@@ -21,8 +21,6 @@
                                            {:path path
                                             :get-thing get-thing
                                             :put-thing! put-thing!
-                                            :user-info-get user-info-get
-                                            :api-key (:goog-api environ)
                                             :entity path
                                             :current-user-atom (atom {})})))})
 
@@ -35,7 +33,7 @@
       ;   :body
       ;            (#'style/compile-style)})
       (GET "/" []
-        (page-make [:player :me]))
+        (page-make [:home]))
       (GET "/shell.html" []
         (page-make [:shell]))
       (GET "/oauth" [])
@@ -46,9 +44,6 @@
          :body (str "var sitekey = " "\"" (:goog-api environ) "\"")})
       (GET "/character/*" {:keys [uri headers query-string]
                            :as request}
-        (page-make (data/get-path-from-uri uri)))
-      (GET "/player/*" {:keys [uri headers query-string
-                                 :as request]}
         (page-make (data/get-path-from-uri uri)))
 
       (GET "/rulebook/*" {:keys [uri headers query-string]
